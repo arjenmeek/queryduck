@@ -6,6 +6,16 @@ The purpose of this project is to work towards a standard for expressing and exc
 
 It came into existence as a result of my never-ending desire to label and classify things both physical and digital in the most generally useful way possible. I've evaluated many systems and solutions for this but all of them turned out to suffer from various combinations of being too domain-specific, too complicated, too closed/proprietary or otherwise suffering from some fatal flaw within the context of my use cases.
 
+If you want to know more about the philosophical and/or structural background of the project, please read the documentation in the `docs` directory.
+
+
+## Repository structure
+
+To be expanded as the project grows.
+
+- `README.md` - this document
+- `docs/` - further documentation (start at `index.md`)
+
 
 ## Status & Roadmap
 
@@ -19,7 +29,6 @@ As with many abstract and ambitious projects, there's a pretty good chance this 
 4.  Evaluate the proof-of-concept in various practical scenarios and decide on improvements to the basic concepts and functionality.
 5.  Go through as many iterations of revising the basic concepts and proof-of-concept implementations as are necessary to either reach a sufficiently useful and stable version of the standard, or to determine that the project goals simply aren't realistic.
 6.  Develop stable implementations of the standard and/or encourage others to do so, so that it might see actual practical use.
-
 
 Depending on the degree of success in each phase, I may decide to make this repository publicly available, and eventually actively try to involve others.
 
