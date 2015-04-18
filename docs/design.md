@@ -1,4 +1,4 @@
-# Introduction
+# CrunchyVicar: Design document - Introduction
 
 This document describes important considerations and design desicions regarding the CrunchyPope project and the specification that is to be established.
 
