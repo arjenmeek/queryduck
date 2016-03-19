@@ -29,7 +29,7 @@ The following technologies will be used for PoC1:
 
 From the repository root:
 
-- `cli`: Files related to the CLI client
+- `client`: Files related to the CLI client
 - `server`: Files related to the server application
 - `server/README.md`: Further documentation for the server application
 
