@@ -7,10 +7,10 @@ The current PoC will be referred to as "PoC1".
 
 # Main features
 
-*   RESTful API: Use with specific API clients only (no web interface).
-*   CLI-based API client: to be written alongside the server.
-*   Create/Retrieve/Update/Delete: Basic CRUD operations. Explicit delete operations are somewhat contrary to the design principles but will greatly help with debugging in this early phase.
-*   Export/Import: Being able to export and import the database content will reduce the need for complex DB schema migrations (instead we can export, drop DB, upgrade, create DB, import).
+- RESTful API: Use with specific API clients only (no web interface).
+- CLI-based API client: to be written alongside the server.
+- Create/Retrieve/Update/Delete: Basic CRUD operations. Explicit delete operations are somewhat contrary to the design principles but will greatly help with debugging in this early phase.
+- Export/Import: Being able to export and import the database content will reduce the need for complex DB schema migrations (instead we can export, drop DB, upgrade, create DB, import).
 
 
 # Technologies to be used
@@ -19,19 +19,19 @@ For this first PoC phase, the primary goal is to be able to create a "basically 
 
 The following technologies will be used for PoC1:
 
-*   Python 3 programming language
-*   PostgreSQL database engine
-*   Pyramid web framework (with pyramid\_services pluggable service layer)
-*   SQLAlchemy ORM
+- Python 3 programming language
+- PostgreSQL database engine
+- Pyramid web framework (with pyramid\_services pluggable service layer)
+- SQLAlchemy ORM
 
 
 # File structure
 
 From the repository root:
 
-*   `cli`: Files related to the CLI client
-*   `server`: Files related to the server application
-*   `server/README.md`: Further documentation for the server application
+- `cli`: Files related to the CLI client
+- `server`: Files related to the server application
+- `server/README.md`: Further documentation for the server application
 
 
 # Server application design
@@ -42,9 +42,9 @@ The server application is started through a local Python 3 script called `serve.
 
 From here, the Pyramid `Configurator` class takes over the general management of the application's components, called on by the `main` function in `__init__.py`. The most important components and files are:
 
-*   Controller classes, in `controllers.py`. These handle incoming API calls (web requests) according to the routes defined in the `main` function, and generally call on various services for more advanced functionality.
-*   Models, in `models.py`. These represent data objects, currently just Statements.
-*   Repositories, in `repositories.py`. These Repository classes are services that provide a consistent interface to the underlying data store, and handle querying and modifying the stored information.
+- Controller classes, in `controllers.py`. These handle incoming API calls (web requests) according to the routes defined in the `main` function, and generally call on various services for more advanced functionality.
+- Models, in `models.py`. These represent data objects, currently just Statements.
+- Repositories, in `repositories.py`. These Repository classes are services that provide a consistent interface to the underlying data store, and handle querying and modifying the stored information.
 
 
 ## Models
@@ -53,10 +53,10 @@ Currently, the only model (i.e. data class) is the Statement. In principle it is
 
 A Statement within the context of PoC1 is stored in a table containing the following columns:
 
-*   `id`: Locally unique integer identifier for Statements (mainly used for efficiently representing relationships between Statements).
-*   `uuid`: The UUID representing the Statement.
-*   `subject_id`, `predicate_id`: Integer columns referencing `id` values of Statements for corresponding elements in the Statement.
-*   `object_*`: Multiple columns for various data types that a Statement's *object* can contain (including Statement, through `object_statement_id`). By representing each data type through a different column, indexes can be efficiently used for querying Statements using various filters.
+- `id`: Locally unique integer identifier for Statements (mainly used for efficiently representing relationships between Statements).
+- `uuid`: The UUID representing the Statement.
+- `subject_id`, `predicate_id`: Integer columns referencing `id` values of Statements for corresponding elements in the Statement.
+- `object_*`: Multiple columns for various data types that a Statement's *object* can contain (including Statement, through `object_statement_id`). By representing each data type through a different column, indexes can be efficiently used for querying Statements using various filters.
 
 
 ## Serialization / deserialization
@@ -67,11 +67,15 @@ Since JSON provides a very limited set of scalar datatypes, each element of a St
 
 The following data `type`s and corresponding value specifications should be supported initially. Different `type`s may represent the same actual data type, encoded in a different way.
 
-*   `uuid`: A Universally Unique IDentifier in the canonical 8-4-4-4-12 lowercase hexadecimal format.
-*   `st`: A Statement, referred to by its `uuid` Identifier.
-*   `int`: An integer number, represented by its decimal digits, optionally starting with a `-` for negative values.
-*   `str`: A sequence of Unicode characters.
-*   `bool`: Either `true` or `false`.
-*   `datetime`: Combination of a date and time value, without specification of timezone or time standard. The structure conforms to the Python `strptime()` format `%Y-%m-%dT%H:%M:%S.%f` (for example: `2010-03-24T15:03:56.821346`).
-*   `special`: A set of values with special semantic meaning. For now the only allowed value is `self`, which refers to the Statement which the element is part of.
+- `uuid`: A Universally Unique IDentifier in the canonical 8-4-4-4-12 lowercase hexadecimal format.
+- `st`: A Statement, referred to by its `uuid` Identifier.
+- `int`: An integer number, represented by its decimal digits, optionally starting with a `-` for negative values.
+- `str`: A sequence of Unicode characters.
+- `bool`: Either `true` or `false`.
+- `datetime`: Combination of a date and time value, without specification of timezone or time standard. The structure conforms to the Python `strptime()` format `%Y-%m-%dT%H:%M:%S.%f` (for example: `2010-03-24T15:03:56.821346`).
+- `special`: A set of values with special semantic meaning. For now the only allowed value is `self`, which refers to the Statement which the element is part of.
 
+
+# Client application design
+
+The basic interaction for the CLI application is single-invocation, with input data passed as commandline arguments. Alternately, an integrated command prompt can be invoked where similar actions to the single-invocation interface can be invoked, with some preservation of state between invocations.

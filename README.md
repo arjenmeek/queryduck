@@ -14,7 +14,9 @@ If you want to know more about the philosophical and/or structural background of
 To be expanded as the project grows.
 
 - `README.md` - this document
+- `client/` - client application
 - `docs/` - further documentation (start at `index.md`)
+- `server/` - server application
 
 
 ## Status & Roadmap
