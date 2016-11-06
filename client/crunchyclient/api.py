@@ -1,0 +1,43 @@
+import json
+
+import requests
+
+from requests.exceptions import HTTPError
+
+from .exceptions import NotFoundError
+
+
+class API(object):
+    """Simplistic generic wrapper class for RESTful API's using the Requests module."""
+
+    def __init__(self, url):
+        """Make the provided API URL available."""
+        self.url = url
+
+    def _raise_from_request(self, r):
+        """Call the raise_for_status Requests method and try to handle what happens."""
+        try:
+            r.raise_for_status()
+        except HTTPError as e:
+            if e.response.status_code == 404:
+                raise NotFoundError()
+            else:
+                raise e
+
+    def get(self, path, params=None):
+        """Perform a GET request to a path with optional query parameters."""
+        r = requests.get('{}/{}'.format(self.url, path), params=params)
+        self._raise_from_request(r)
+        return r.json()
+
+    def post(self, path, data):
+        """Perform a POST request to a path with a JSON-serialized body."""
+        r = requests.post('{}/{}'.format(self.url, path), data=json.dumps(data))
+        self._raise_from_request(r)
+        return r.json()
+
+    def put(self, path, data):
+        """Perform a PUT request to a path with a JSON-serialized body."""
+        r = requests.put('{}/{}'.format(self.url, path), data=json.dumps(data))
+        self._raise_from_request(r)
+        return r.json()
