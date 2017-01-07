@@ -11,6 +11,7 @@ The current PoC will be referred to as "PoC1".
 - CLI-based API client: to be written alongside the server.
 - Create/Retrieve/Update/Delete: Basic CRUD operations. Explicit delete operations are somewhat contrary to the design principles but will greatly help with debugging in this early phase.
 - Export/Import: Being able to export and import the database content will reduce the need for complex DB schema migrations (instead we can export, drop DB, upgrade, create DB, import).
+- Ability to use basic Schema structures (also see `schema.md`).
 
 
 # Technologies to be used
