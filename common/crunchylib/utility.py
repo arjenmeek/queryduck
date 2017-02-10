@@ -43,7 +43,7 @@ def serialize_value(value):
         return 'str:{}'.format(value)
     elif type(value) == datetime.datetime:
         return 'datetime:{}'.format(datetime.datetime.strftime(value, '%Y-%m-%dT%H:%M:%S.%f'))
-    elif hasattr('is_statement') and value.is_statement:
+    elif hasattr(value, 'is_statement') and value.is_statement:
         return 'st:{}'.format(value.uuid)
 
 
