@@ -15,6 +15,7 @@ To be expanded as the project grows.
 
 - `README.md` - this document
 - `client/` - client application
+- `common/` - code shared between client and server
 - `docs/` - further documentation (start at `index.md`)
 - `server/` - server application
 
