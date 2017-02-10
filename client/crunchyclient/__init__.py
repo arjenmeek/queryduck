@@ -1,7 +1,8 @@
 from uuid import uuid4, UUID
 
+from crunchylib.exceptions import GeneralError
+
 from .api import API
-from .exceptions import GeneralError
 
 
 class CrunchyClient(object):

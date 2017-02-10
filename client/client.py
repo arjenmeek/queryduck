@@ -2,6 +2,8 @@ import sys
 
 import yaml
 
+sys.path.append('../common')
+
 from crunchyclient import CrunchyClient
 
 

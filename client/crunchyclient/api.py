@@ -4,7 +4,7 @@ import requests
 
 from requests.exceptions import HTTPError
 
-from .exceptions import NotFoundError
+from crunchylib.exceptions import NotFoundError
 
 
 class API(object):
