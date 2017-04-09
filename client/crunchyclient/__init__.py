@@ -1,8 +1,10 @@
 from uuid import uuid4, UUID
 
 from crunchylib.exceptions import GeneralError
+from crunchylib.utility import deserialize_value
 
-from .api import API
+from .api import StatementAPI
+from .repositories import StatementRepository
 
 
 class CrunchyClient(object):
@@ -11,7 +13,8 @@ class CrunchyClient(object):
     def __init__(self, config):
         """Make the config available for use, and initialize the API wrapper."""
         self.config = config
-        self.api = API(self.config['api']['url'])
+        api = StatementAPI(self.config['api']['url'])
+        self.statements = StatementRepository(api)
 
     def run(self, action, *params):
         """Perform the action requested by the user with appropriate parameters."""
@@ -25,14 +28,15 @@ class CrunchyClient(object):
 
     def action_list_statements(self):
         """Retrieve multiple Statements."""
-        statements = self.api.get('statements')
+        statements = self.statements.find()
         for statement in statements:
-            print(statement)
+            statement.show()
 
     def action_get_statement(self, uuid_str):
         """Get a single Statement by its UUID reference."""
-        statement = self.api.get('statements/{}'.format(uuid_str))
-        print(statement)
+        uuid_ = deserialize_value(uuid_str)
+        statement = self.statements.get_by_uuid(uuid_)
+        statement.show()
 
     def action_new_uuid_statement(self, uuid_str, subject_str, predicate_str, object_str):
         """Create a new Statement with a specific UUID reference."""

@@ -12,6 +12,7 @@ class StatementReference(object):
         """Initialize this as a UUID-based reference."""
         self.uuid = uuid_
         self.self_reference = False
+        self.is_statement = True
 
     def resolve(self, context, statement_repository):
         """Resolve the reference using the provided resources."""
