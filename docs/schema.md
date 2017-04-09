@@ -41,3 +41,12 @@ Which makes it a statement that has itself as both its Subject and Object (since
 This Statement has itself as both Subject and Predicate (after all, it's a Statement defining what the *type* of *type* is.
 
 The combination of these two Resources is sufficient to build a more elaborate schema on.
+
+
+# Tying the Schema to applications
+
+Even with a clear idea of what the Schema should look like, it remains tricky to actually use it in applications: even though we've used readable identifiers so far, Statements are normally identified by a UUID, which is a sequence of (usually random) hexadecimal digits. In order for an application to effectively use a Schema, it will have to somehow find all the Statements the Schema that are relevant to the concepts it deals with.
+
+The most basic way to do this would be to configure a separate UUID in the application for each relevant program concept. However, this quickly becomes cumbersome for more elaborate applications as a long list of UUIDs would have to be registered somewhere, and updated whenever relevant changes happen.
+
+Instead, two special types of Statements are defined which are intended to make this situation less complicated:

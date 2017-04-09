@@ -15,11 +15,11 @@ Initially this process suffered from a rather heavy case of 'scope creep', but a
 With a general idea of the desired structure for the project, I started to make attempts to document the ideas in my head and create a source control repository to put documents and code in. This also meant I needed a name, which unfortunately I'm useless at, so after some playing around with random wordlists I ended up with *CrunchyVicar*.
 
 
-## 2015-2016 (now): Proof of Concept 1
+## 2015-2017 (now): Proof of Concept 1
 
 The first code that followed directly from the mostly-stable ideas behind the project was written, starting with a Python-based server application.
 
 
-## 2015-2016 (now): Expanding documentation
+## 2015-2017 (now): Expanding documentation
 
 Documentation is a work in progress, and probably will be for the foreseeable future. The aim is for documentation to develop along with PoC implementations so that the reasons for specific implementation design choices are clear.
