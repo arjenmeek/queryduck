@@ -8,6 +8,13 @@ class StatementRepository(object):
     def __init__(self, api):
         self.api = api
 
+    def save(self, statement):
+        quad = statement.get_unresolved_quad()
+        self.api.save_statement(quad)
+
+    def delete(self, statement):
+        self.api.delete_statement(statement.uuid)
+
     def resolve_reference(self, orig_value, context=None):
         """Resolve StatementReference instances into an actual Statement."""
         if isinstance(orig_value, StatementReference):
@@ -29,3 +36,4 @@ class StatementRepository(object):
         quads = self.api.find_statements()
         statements = [self.load_statement(*q) for q in quads]
         return statements
+

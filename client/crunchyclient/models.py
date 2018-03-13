@@ -13,6 +13,10 @@ class Statement(object):
         self._object = object_
         self._statement_repository = statement_repository
 
+    def get_unresolved_quad(self):
+        quad = [self.uuid, self._subject, self._predicate, self._object]
+        return quad
+
     @property
     def subject(self):
         if isinstance(self._subject, StatementReference):

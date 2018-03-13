@@ -1,7 +1,7 @@
 from uuid import uuid4, UUID
 
 from crunchylib.exceptions import GeneralError
-from crunchylib.utility import deserialize_value
+from crunchylib.utility import serialize_value, deserialize_value
 
 from .api import StatementAPI
 from .repositories import StatementRepository
@@ -40,12 +40,19 @@ class CrunchyClient(object):
 
     def action_new_uuid_statement(self, uuid_str, subject_str, predicate_str, object_str):
         """Create a new Statement with a specific UUID reference."""
-        statement = [uuid_str, subject_str, predicate_str, object_str]
-        self.api.put('statements/{}'.format(uuid_str), statement)
+        quad = [deserialize_value(v) for v in [uuid_str, subject_str, predicate_str, object_str]]
+        statement = self.statements.load_statement(*quad)
+        self.statements.save(statement)
+        statement.show()
 
     def action_new_statement(self, subject_str, predicate_str, object_str):
         """Create a new Statement with an auto-generated UUID reference."""
         uuid_ = uuid4()
-        uuid_str = 'uuid:{}'.format(uuid_)
-        statement = [uuid_str, subject_str, predicate_str, object_str]
-        self.api.put('statements/{}'.format(uuid_str), statement)
+        uuid_str = serialize_value(uuid_)
+        return self.action_new_uuid_statement(uuid_str, subject_str, predicate_str, object_str)
+
+    def action_delete_statement(self, uuid_str):
+        """Delete a Statement by its UUID reference."""
+        uuid_ = deserialize_value(uuid_str)
+        statement = self.statements.get_by_uuid(uuid_)
+        self.statements.delete(statement)
