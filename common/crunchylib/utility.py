@@ -64,3 +64,17 @@ def deserialize_value(value):
         return datetime.datetime.strptime(value_str, '%Y-%m-%dT%H:%M:%S.%f')
     elif type_str == 'special' and value_str == 'self':
         return SelfReference()
+
+def get_value_type(value):
+    if value is None:
+        return None
+    elif type(value) == UUID:
+        return 'uuid'
+    elif type(value) == int:
+        return 'integer'
+    elif type(value) == str:
+        return 'string'
+    elif type(value) == datetime.datetime:
+        return 'datetime'
+    elif hasattr(value, 'is_statement') and value.is_statement:
+        return 'statement'.format(value.uuid)
