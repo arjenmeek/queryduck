@@ -32,8 +32,8 @@ class StatementRepository(object):
         statement = self.load_statement(*quad)
         return statement
 
-    def find(self):
-        quads = self.api.find_statements()
+    def find(self, filters=None, joins=None):
+        quads = self.api.find_statements(filters=filters, joins=joins)
         statements = [self.load_statement(*q) for q in quads]
         return statements
 

@@ -64,9 +64,15 @@ class StatementAPI(API):
         quad = [deserialize_value(v) for v in raw_statement]
         return quad
 
-    def find_statements(self):
+    def find_statements(self, filters=None, joins=None):
         """Retrieve multiple statements"""
-        raw_statements = self.get('statements')
+        params = {}
+        if filters is not None:
+            params['filter'] = []
+            for f in filters:
+                params['filter'].append(f)
+
+        raw_statements = self.get('statements', params)
         processed_statements = [self._process_raw_statement(s) for s in raw_statements]
         return processed_statements
 
