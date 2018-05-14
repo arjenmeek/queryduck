@@ -35,6 +35,21 @@ From the repository root:
 - `server/README.md`: Further documentation for the server application
 
 
+# REST API
+
+## Retrieving multiple Statements
+
+Multiple Statements can be retrieved by performing a `GET` request to `/statements`. The following parameters can be used to adjust the results:
+
+`join`: Add extra "columns" of Statements to the result set. There is always a single reference to Statement present called `main`.
+
+`filter`: Restrict the rows returned based on conditions. Example: `main.predicate,eq,str:hoi`
+
+`limit`: Limit the number of rows returned. Should be provided as an integer value. Note that no offset parameter exists, pagination should be done by combining limit with a comparison on a sorted value.
+
+`sort`: Sort the rows returned by particular attributes.
+
+
 # Server application design
 
 ## General structure
