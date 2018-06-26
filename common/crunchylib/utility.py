@@ -44,6 +44,8 @@ def serialize_value(value):
         return 'str:{}'.format(value)
     elif type(value) == datetime.datetime:
         return 'datetime:{}'.format(datetime.datetime.strftime(value, '%Y-%m-%dT%H:%M:%S.%f'))
+    elif type(value) == SelfReference:
+        return 'special:self'
     elif hasattr(value, 'is_statement') and value.is_statement:
         return 'st:{}'.format(value.uuid)
 
@@ -64,6 +66,7 @@ def deserialize_value(value):
         return datetime.datetime.strptime(value_str, '%Y-%m-%dT%H:%M:%S.%f')
     elif type_str == 'special' and value_str == 'self':
         return SelfReference()
+
 
 def get_value_type(value):
     if value is None:
