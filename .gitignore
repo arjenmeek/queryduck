@@ -1,4 +1,5 @@
 __pycache__
+.*.swp
 client/config.yml
 drafts
 server/config.yml
