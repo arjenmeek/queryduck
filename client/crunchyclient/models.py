@@ -12,6 +12,7 @@ class Statement(object):
         self._predicate = predicate
         self._object = object_
         self._statement_repository = statement_repository
+        self.is_statement = True
 
     def get_unresolved_quad(self):
         quad = [self.uuid, self._subject, self._predicate, self._object]
