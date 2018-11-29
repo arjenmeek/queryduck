@@ -56,8 +56,7 @@ class Schema(object):
                     self.root_statement,
                     key
                 )
-        print(self.schema_statements)
-        print('-------')
+        print('SCHEMA:', self.schema_statements)
 
     def ensure_uuid_statement(self, uuid_):
         statement = self.sts.get(uuid_)

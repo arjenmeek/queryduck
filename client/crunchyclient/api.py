@@ -70,7 +70,7 @@ class StatementAPI(API):
         if filters is not None:
             params['filter'] = []
             for f in filters:
-                params['filter'].append(f)
+                params['filter'].append(f.serialize())
 
         raw_statements = self.get('statements', params)
         processed_statements = [self._process_raw_statement(s) for s in raw_statements]

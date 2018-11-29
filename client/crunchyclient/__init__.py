@@ -4,6 +4,7 @@ from uuid import uuid4, UUID
 
 from crunchylib.exceptions import GeneralError
 from crunchylib.utility import serialize_value, deserialize_value
+from crunchylib.query import StatementFilter
 
 from .api import StatementAPI
 from .schema import Schema
@@ -64,9 +65,32 @@ class CrunchyClient(object):
         else:
             return args.func(args)
 
+    def _resolve_reference(self, reference):
+        if reference.startswith('schema:'):
+            dummy, schema_reference = reference.split(':', 1)
+            result = self.schema[schema_reference]
+        else:
+            result = deserialize_value(reference)
+        return result
+
+    def _process_filters(self, filters):
+        processed_filters = []
+        for f in filters:
+            parts = f.split(',')
+            lhs = self._resolve_reference(parts[0])
+            operand = parts[1]
+            if len(parts) == 3:
+                rhs = self._resolve_reference(parts[2])
+            else:
+                rhs = None
+            sf = StatementFilter(lhs, operand, rhs)
+            processed_filters.append(sf)
+        return processed_filters
+
     def action_list_statements(self, args):
         """Retrieve multiple Statements."""
-        statements = self.statements.find(filters=args.filter, joins=args.join)
+        processed_filters = self._process_filters(args.filter)
+        statements = self.statements.find(filters=processed_filters, joins=args.join)
         for statement in statements:
             statement.show()
 
@@ -78,12 +102,12 @@ class CrunchyClient(object):
 
     def action_new_statement(self, args):
         """Create a new Statement."""
-        if 'uuid' in args:
+        if 'uuid' in args and args.uuid is not None:
             uuid_str = args.uuid
         else:
             uuid_ = uuid4()
             uuid_str = serialize_value(uuid_)
-        quad = [deserialize_value(v) for v in [uuid_str, args.subject, args.predicate, args.object]]
+        quad = [self._resolve_reference(v) for v in [uuid_str, args.subject, args.predicate, args.object]]
         statement = self.statements.load_statement(*quad)
         self.statements.save(statement)
         statement.show()

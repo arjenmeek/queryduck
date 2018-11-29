@@ -1,6 +1,7 @@
 import uuid
 
-from crunchylib.utility import serialize_value, StatementReference
+from crunchylib.utility import deserialize_value, serialize_value, StatementReference, ColumnReference
+from crunchylib.query import StatementFilter
 
 from .models import Statement
 
@@ -36,12 +37,11 @@ class StatementRepository(object):
 
     def ensure_statement(self, subject, predicate, object_):
         filters = [
-            'main.subject,eq,{}'.format(serialize_value(subject)),
-            'main.predicate,eq,{}'.format(serialize_value(predicate)),
-            'main.object,eq,{}'.format(serialize_value(object_)),
+            StatementFilter(ColumnReference('main', 'subject'), 'eq', subject),
+            StatementFilter(ColumnReference('main', 'predicate'), 'eq', predicate),
+            StatementFilter(ColumnReference('main', 'object'), 'eq', object_),
         ]
         statements = self.find(filters=filters)
-        print(statements)
         if len(statements) >= 1:
             return statements[0]
 #        else:
@@ -50,11 +50,11 @@ class StatementRepository(object):
     def find_by_attributes(self, subject=None, predicate=None, object_=None):
         filters = []
         if subject is not None:
-            filters.append('main.subject,eq,{}'.format(serialize_value(subject)))
+            filters.append(StatementFilter(ColumnReference('main', 'subject'), 'eq', subject))
         if predicate is not None:
-            filters.append('main.predicate,eq,{}'.format(serialize_value(predicate)))
+            filters.append(StatementFilter(ColumnReference('main', 'predicate'), 'eq', predicate))
         if object_ is not None:
-            filters.append('main.object,eq,{}'.format(serialize_value(object_)))
+            filters.append(StatementFilter(ColumnReference('main', 'object'), 'eq', object_))
 
         statements = self.find(filters=filters)
         return statements
