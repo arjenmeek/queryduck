@@ -23,6 +23,14 @@ class StatementReference(object):
             return statement
 
 
+class ColumnReference(object):
+    """A reference to a result column in a query, for comparisons and sorting"""
+
+    def __init__(self, alias, column):
+        self.alias = alias
+        self.column = column
+
+
 class SelfReference(StatementReference):
     """A type of StatementReference to use where one element of a Statement refers to the Statement itself."""
 
@@ -46,6 +54,8 @@ def serialize_value(value):
         return 'datetime:{}'.format(datetime.datetime.strftime(value, '%Y-%m-%dT%H:%M:%S.%f'))
     elif type(value) == SelfReference:
         return 'special:self'
+    elif type(value) == ColumnReference:
+        return 'column:{}.{}'.format(value.alias, value.column)
     elif hasattr(value, 'is_statement') and value.is_statement:
         return 'st:{}'.format(value.uuid)
 
@@ -66,6 +76,9 @@ def deserialize_value(value):
         return datetime.datetime.strptime(value_str, '%Y-%m-%dT%H:%M:%S.%f')
     elif type_str == 'special' and value_str == 'self':
         return SelfReference()
+    elif type_str == 'column':
+        alias, column = value_str.split('.')
+        return ColumnReference(alias, column)
 
 
 def get_value_type(value):
