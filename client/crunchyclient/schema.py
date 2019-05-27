@@ -56,7 +56,7 @@ class Schema(object):
                     self.root_statement,
                     key
                 )
-        print('SCHEMA:', self.schema_statements)
+#        print('SCHEMA:', self.schema_statements)
 
     def ensure_uuid_statement(self, uuid_):
         statement = self.sts.get(uuid_)
@@ -87,3 +87,13 @@ class Schema(object):
         self.sts.ensure_subject_object(self.root_statement, self.schema_statements['label'], 'root statement')
         for key in self.schema_keys:
             self.sts.ensure_subject_object(self.schema_statements[key], self.schema_statements['label'], key)
+
+    def find_name(self, statement):
+        if statement.uuid == self.root_statement.uuid:
+            return "ROOT"
+        else:
+            for k, v in self.schema_statements.items():
+                if v.uuid == statement.uuid:
+                    return k
+            else:
+                return None

@@ -1,12 +1,14 @@
 import argparse
+import datetime
 
 from uuid import uuid4, UUID
 
 from crunchylib.exceptions import GeneralError
 from crunchylib.utility import serialize_value, deserialize_value
-from crunchylib.query import StatementFilter
+from crunchylib.query import StatementJoin, StatementFilter
 
-from .api import StatementAPI
+from .api import CrunchyAPI
+from .mappers import StatementMapper
 from .schema import Schema
 from .repositories import StatementRepository
 
@@ -17,8 +19,9 @@ class CrunchyClient(object):
     def __init__(self, config):
         """Make the config available for use, and initialize the API wrapper."""
         self.config = config
-        api = StatementAPI(self.config['api']['url'])
-        self.statements = StatementRepository(api)
+        api = CrunchyAPI(self.config['api']['url'])
+        mapper = StatementMapper(api)
+        self.statements = StatementRepository(mapper)
         self.schema = Schema(
             UUID(self.config['schema']['root_uuid']),
             self.statements,
@@ -36,6 +39,7 @@ class CrunchyClient(object):
         parser_multi.add_argument('-j', '--join', action='append')
         parser_multi.add_argument('-l', '--limit', action='append', type=int)
         parser_multi.add_argument('-s', '--sort', action='append')
+        parser_multi.add_argument('-c', '--column', action='append')
 
         parser_single = argparse.ArgumentParser(add_help=False)
         parser_single.add_argument('-u', '--uuid')
@@ -73,6 +77,21 @@ class CrunchyClient(object):
             result = deserialize_value(reference)
         return result
 
+    def _process_joins(self, joins):
+        processed_joins = []
+        for j in joins:
+            parts = j.split(',')
+            name = parts[0]
+            lhs = self._resolve_reference(parts[1])
+            operand = parts[2]
+            if len(parts) == 4:
+                rhs = self._resolve_reference(parts[3])
+            else:
+                rhs = None
+            sj = StatementJoin(name, lhs, operand, rhs)
+            processed_joins.append(sj)
+        return processed_joins
+
     def _process_filters(self, filters):
         processed_filters = []
         for f in filters:
@@ -87,12 +106,72 @@ class CrunchyClient(object):
             processed_filters.append(sf)
         return processed_filters
 
+    def _show_statement_rowdict(self, statement_rowdict, columns):
+        statement_str = ''
+        for column in columns:
+            if '.' in column:
+                join_name, attribute_name = column.split('.', 1)
+                statement = statement_rowdict[join_name]
+                prefixed_attribute_name = '_' + attribute_name
+                if statement is not None:
+                    readable_value = self._readable_value(getattr(statement, prefixed_attribute_name), statement)
+                else:
+                    readable_value = '--- NONE ---'
+            else:
+                join_name = column
+                statement = statement_rowdict[join_name]
+                readable_value = self._readable_value(statement)
+
+            statement_str += "{: <20} ".format(readable_value)
+        print(statement_str)
+
+    def _readable_value(self, value, context = None):
+        if value is None:
+            return '--- NONE ---'
+        elif type(value) == UUID:
+            return str(value)
+        elif type(value) == int:
+            return str(value)
+        elif type(value) == str:
+            return '"{}"'.format(value)
+#        elif type(value) == datetime.datetime:
+#            return 'datetime:{}'.format(datetime.datetime.strftime(value, '%Y-%m-%dT%H:%M:%S.%f'))
+#        elif type(value) == SelfReference:
+#            return 'special:self'
+#        elif type(value) == ColumnReference:
+#            return '[{}.{}]'.format(value.alias, value.column)
+        elif hasattr(value, 'is_statement') and value.is_statement:
+            if context is not None and value.uuid == context.uuid:
+                return "*self*"
+            schema_name = self.schema.find_name(value)
+            if schema_name:
+                return 'schema:{}'.format(schema_name)
+            else:
+                return 'st:{}...'.format(str(value.uuid)[0:12])
+
     def action_list_statements(self, args):
         """Retrieve multiple Statements."""
-        processed_filters = self._process_filters(args.filter)
-        statements = self.statements.find(filters=processed_filters, joins=args.join)
-        for statement in statements:
-            statement.show()
+        processed_filters = processed_joins = None
+        if args.join is not None:
+            processed_joins = self._process_joins(args.join)
+        if args.filter is not None:
+            processed_filters = self._process_filters(args.filter)
+        if args.column is not None:
+            columns = args.column
+        else:
+            columns = ['main', 'main.subject', 'main.predicate', 'main.object']
+        resultset = self.statements.find(filters=processed_filters, joins=processed_joins, multi=True)
+
+        header = ''
+        separator = ''
+        for column in columns:
+            header += "{: <20} ".format(column)
+            separator += "{: <20} ".format('-' * len(column))
+        print(header)
+        print(separator)
+
+        for rowdict in resultset.get_rowdicts():
+            self._show_statement_rowdict(rowdict, columns)
 
     def action_get_statement(self, args):
         """Get a single Statement by its UUID reference."""

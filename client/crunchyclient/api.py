@@ -1,6 +1,7 @@
 import json
 
 import requests
+import uuid
 
 from requests.exceptions import HTTPError
 
@@ -8,8 +9,8 @@ from crunchylib.exceptions import NotFoundError
 from crunchylib.utility import deserialize_value, serialize_value
 
 
-class API(object):
-    """Simplistic generic wrapper class for RESTful API's using the Requests module."""
+class BaseAPI(object):
+    """Simple generic wrapper class for RESTful API's using the Requests module."""
 
     def __init__(self, url):
         """Make the provided API URL available."""
@@ -50,36 +51,31 @@ class API(object):
         return r.json()
 
 
-class StatementAPI(API):
-    """Provides a Statement-specific wrapper around the API. Statements are represented by quads of values."""
 
-    def _process_raw_statement(self, raw_statement):
-        """Deserialize a set of raw values"""
-        elements = [deserialize_value(v) for v in raw_statement]
-        return elements
+class CrunchyAPI(BaseAPI):
 
-    def get_statement(self, uuid_):
-        """Fetch a statement"""
+    def get_raw_statement(self, uuid_):
+        """Fetch a raw statement"""
         raw_statement = self.get('statements/{}'.format(serialize_value(uuid_)))
-        quad = [deserialize_value(v) for v in raw_statement]
-        return quad
+        return raw_statement
 
-    def find_statements(self, filters=None, joins=None):
+    def find_raw_statements(self, filter_strings=None, join_strings=None):
         """Retrieve multiple statements"""
         params = {}
-        if filters is not None:
-            params['filter'] = []
-            for f in filters:
-                params['filter'].append(f.serialize())
+        if filter_strings is not None:
+            params['filter'] = filter_strings
+        if join_strings is not None:
+            params['join'] = join_strings
 
-        raw_statements = self.get('statements', params)
-        processed_statements = [self._process_raw_statement(s) for s in raw_statements]
-        return processed_statements
+        response = self.get('statements', params)
+        raw_results = response['results']
+        raw_statements = response['statements']
+        return raw_results, raw_statements
 
-    def save_statement(self, quad):
+    def save_raw_statement(self, uuid_, raw_statement):
         """Persist a statement"""
-        raw_quad = [serialize_value(v) for v in quad]
-        self.put('statements/{}'.format(raw_quad[0]), raw_quad)
+        uuid_str = serialize_value(uuid_)
+        self.put('statements/{}'.format(uuid_str), raw_statement)
 
     def delete_statement(self, uuid_):
         """Delete a statement"""

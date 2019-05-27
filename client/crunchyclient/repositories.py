@@ -8,15 +8,14 @@ from .models import Statement
 
 class StatementRepository(object):
 
-    def __init__(self, api):
-        self.api = api
+    def __init__(self, mapper):
+        self.mapper = mapper
 
     def save(self, statement):
-        quad = statement.get_unresolved_quad()
-        self.api.save_statement(quad)
+        self.mapper.save_statement(statement)
 
     def delete(self, statement):
-        self.api.delete_statement(statement.uuid)
+        self.mapper.delete_statement(statement)
 
     def resolve_reference(self, orig_value, context=None):
         """Resolve StatementReference instances into an actual Statement."""
@@ -56,16 +55,13 @@ class StatementRepository(object):
         if object_ is not None:
             filters.append(StatementFilter(ColumnReference('main', 'object'), 'eq', object_))
 
-        statements = self.find(filters=filters)
-        return statements
+        resultset = self.find(filters=filters)
+        return resultset.get_column()
 
     def get_by_uuid(self, uuid_):
-        quad = self.api.get_statement(uuid_)
-        statement = self.load_statement(*quad)
+        statement = self.mapper.get_statement(uuid_)
         return statement
 
-    def find(self, filters=None, joins=None):
-        quads = self.api.find_statements(filters=filters, joins=joins)
-        statements = [self.load_statement(*q) for q in quads]
-        return statements
-
+    def find(self, filters=None, joins=None, multi=False):
+        resultset = self.mapper.find_statements(filters=filters, joins=joins, multi=multi)
+        return resultset
