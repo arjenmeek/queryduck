@@ -8,6 +8,7 @@ from crunchylib.utility import serialize_value, deserialize_value
 from crunchylib.query import StatementJoin, StatementFilter
 
 from .api import CrunchyAPI
+from .filesystem import VolumeHandler
 from .mappers import StatementMapper
 from .schema import Schema
 from .repositories import StatementRepository
@@ -19,8 +20,8 @@ class CrunchyClient(object):
     def __init__(self, config):
         """Make the config available for use, and initialize the API wrapper."""
         self.config = config
-        api = CrunchyAPI(self.config['api']['url'])
-        mapper = StatementMapper(api)
+        self.api = CrunchyAPI(self.config['api']['url'])
+        mapper = StatementMapper(self.api)
         self.statements = StatementRepository(mapper)
         self.schema = Schema(
             UUID(self.config['schema']['root_uuid']),
@@ -50,6 +51,15 @@ class CrunchyClient(object):
         parser_create.add_argument('-o', '--object')
         parser_create.add_argument('-u', '--uuid')
 
+        parser_single_volume = argparse.ArgumentParser(add_help=False)
+        parser_single_volume.add_argument('-r', '--reference', required=True)
+
+        parser_update_volume = argparse.ArgumentParser(add_help=False)
+        parser_update_volume.add_argument('-r', '--reference', required=True)
+        parser_update_volume.add_argument('-p', '--path', required=True)
+
+        parser_dumb = argparse.ArgumentParser(add_help=False)
+
         # Command-specific subparsers
         parser_list = subparsers.add_parser('list', parents=[parser_multi])
         parser_list.set_defaults(func=self.action_list_statements)
@@ -62,6 +72,18 @@ class CrunchyClient(object):
 
         parser_delete = subparsers.add_parser('delete', parents=[parser_single])
         parser_delete.set_defaults(func=self.action_delete_statement)
+
+        parser_list_volumes = subparsers.add_parser('list_volumes', parents=[parser_dumb])
+        parser_list_volumes.set_defaults(func=self.action_list_volumes)
+
+        parser_new_volume = subparsers.add_parser('new_volume', parents=[parser_single_volume])
+        parser_new_volume.set_defaults(func=self.action_new_volume)
+
+        parser_delete_volume = subparsers.add_parser('delete_volume', parents=[parser_single_volume])
+        parser_delete_volume.set_defaults(func=self.action_delete_volume)
+
+        parser_update_volume = subparsers.add_parser('update_volume', parents=[parser_update_volume])
+        parser_update_volume.set_defaults(func=self.action_update_volume)
 
         args = parser.parse_args(params)
         if not 'func' in args:
@@ -196,3 +218,25 @@ class CrunchyClient(object):
         uuid_ = deserialize_value(args.uuid)
         statement = self.statements.get_by_uuid(uuid_)
         self.statements.delete(statement)
+
+    def action_list_volumes(self, args):
+        """List all Volumes"""
+        volumes = self.api.find_raw_volumes()
+        for volume in volumes:
+            print(volume['id'], volume['reference'])
+
+    def action_new_volume(self, args):
+        """Create a new Volume"""
+        volume = {"reference": args.reference}
+        self.api.save_raw_volume(volume)
+
+    def action_delete_volume(self, args):
+        """Delete a Volume"""
+        reference = args.reference
+        self.api.delete_volume(args.reference)
+
+    def action_update_volume(self, args):
+        """Update a Volume's files"""
+        volume = self.api.get_raw_volume(args.reference)
+        vh = VolumeHandler(volume, self.api)
+        vh.update(args.path)

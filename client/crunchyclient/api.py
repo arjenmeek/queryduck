@@ -81,3 +81,27 @@ class CrunchyAPI(BaseAPI):
         """Delete a statement"""
         uuid_str = serialize_value(uuid_)
         self.delete('statements/{}'.format(uuid_str))
+
+    def find_raw_volumes(self):
+        volumes = self.get('volumes')
+        return volumes
+
+    def save_raw_volume(self, raw_volume):
+        """Persist a volume"""
+        self.put('volumes/{}'.format(raw_volume['reference']), raw_volume)
+
+    def get_raw_volume(self, reference):
+        """Fetch a raw volume"""
+        volume = self.get('volumes/{}'.format(reference))
+        return volume
+
+    def delete_volume(self, reference):
+        """Delete a statement"""
+        self.delete('volumes/{}'.format(reference))
+
+    def find_raw_volume_files(self, reference, params):
+        files = self.get('volumes/{}/files'.format(reference), params)
+        return files
+
+    def mutate_volume_files(self, reference, files):
+        self.post('volumes/{}/files'.format(reference), files)
