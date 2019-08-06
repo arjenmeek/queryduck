@@ -1,5 +1,6 @@
 __pycache__
 .*.swp
+.mypy_cache
 client/config.yml
 drafts
 server/config.yml
