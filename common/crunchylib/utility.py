@@ -1,3 +1,4 @@
+import base64
 import datetime
 
 from uuid import UUID
@@ -22,6 +23,22 @@ class StatementReference(object):
             statement = statement_repository.get_by_uuid(self.uuid)
             return statement
 
+
+class BlobReference(object):
+
+    is_blob = True
+
+    def __init__(self, identifier):
+        self.checksum = base64.b64decode(identifier)
+        self.is_blob = True
+
+    def get_identifier(self):
+        return base64.b64encode(self.checksum).decode('utf-8')
+
+    def resolve(self, statement_repository):
+        """Resolve the reference using the provided resources."""
+        blob = statement_repository.get_blob(self.checksum)
+        return blob
 
 class ColumnReference(object):
     """A reference to a result column in a query, for comparisons and sorting"""
@@ -58,6 +75,8 @@ def serialize_value(value):
         return 'column:{}.{}'.format(value.alias, value.column)
     elif hasattr(value, 'is_statement') and value.is_statement:
         return 'st:{}'.format(value.uuid)
+    elif hasattr(value, 'is_blob') and value.is_blob:
+        return 'blob:{}'.format(value.get_identifier())
 
 
 def deserialize_value(value):
@@ -68,6 +87,8 @@ def deserialize_value(value):
     elif type_str == 'st':
         uuid_ = UUID(value_str)
         return StatementReference(uuid_=uuid_)
+    elif type_str == 'blob':
+        return BlobReference(identifier=value_str)
     elif type_str == 'int':
         return int(value_str)
     elif type_str == 'str':
@@ -79,7 +100,6 @@ def deserialize_value(value):
     elif type_str == 'column':
         alias, column = value_str.split('.')
         return ColumnReference(alias, column)
-
 
 def get_value_type(value):
     if value is None:
