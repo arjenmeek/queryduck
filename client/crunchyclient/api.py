@@ -54,6 +54,9 @@ class BaseAPI(object):
 
 class CrunchyAPI(BaseAPI):
 
+    def create_statements(self, statements):
+        self.post('statements', statements)
+
     def get_raw_statement(self, uuid_):
         """Fetch a raw statement"""
         raw_statement = self.get('statements/{}'.format(serialize_value(uuid_)))
@@ -105,3 +108,7 @@ class CrunchyAPI(BaseAPI):
 
     def mutate_volume_files(self, reference, files):
         self.post('volumes/{}/files'.format(reference), files)
+
+    def query_statements(self, params):
+        statements = self.get('statements/query', params=params)
+        return statements

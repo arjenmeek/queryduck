@@ -1,6 +1,7 @@
 import argparse
 import datetime
 
+from collections import OrderedDict
 from uuid import uuid4, UUID
 
 from crunchylib.exceptions import GeneralError
@@ -25,6 +26,9 @@ class StatementDirector(object):
             self.master.config['schema']['keys']
         )
 
+        parser_do = argparse.ArgumentParser(add_help=False)
+        parser_do.add_argument('what', nargs='+')
+
         parser_multi = argparse.ArgumentParser(add_help=False)
         parser_multi.add_argument('-f', '--filter', action='append')
         parser_multi.add_argument('-j', '--join', action='append')
@@ -41,14 +45,29 @@ class StatementDirector(object):
         parser_create.add_argument('-o', '--object')
         parser_create.add_argument('-u', '--uuid')
 
+        self.master.register_command_parser('do', parser_do, self.action_do)
         self.master.register_command_parser('list', parser_multi, self.action_list_statements)
         self.master.register_command_parser('get', parser_single, self.action_get_statement)
         self.master.register_command_parser('new', parser_create, self.action_new_statement)
         self.master.register_command_parser('delete', parser_single, self.action_delete_statement)
 
+    def _simple_resolve_reference(self, reference):
+        if reference.startswith('@'):
+            schema_reference = reference[1:]
+            result = serialize_value(self.schema[schema_reference])
+        elif reference.startswith('$'):
+            label_reference = reference[1:]
+            result = self._get_by_label(label_reference)
+        else:
+            result = reference
+        return result
+
     def _resolve_reference(self, reference):
-        if reference.startswith('schema:'):
-            dummy, schema_reference = reference.split(':', 1)
+        if reference.startswith('schema/'):
+            dummy, schema_reference = reference.split('/', 1)
+            result = self.schema[schema_reference]
+        elif reference.startswith('@'):
+            dummy, label_reference = reference.split('/', 1)
             result = self.schema[schema_reference]
         else:
             result = deserialize_value(reference)
@@ -125,6 +144,8 @@ class StatementDirector(object):
                 return 'schema:{}'.format(schema_name)
             else:
                 return 'st:{}...'.format(str(value.uuid)[0:12])
+        elif hasattr(value, 'is_blob') and value.is_blob:
+            return 'blob:{}'.format(value.get_identifier())
 
     def action_list_statements(self, args):
         """Retrieve multiple Statements."""
@@ -173,3 +194,96 @@ class StatementDirector(object):
         uuid_ = deserialize_value(args.uuid)
         statement = self.statements.get_by_uuid(uuid_)
         self.statements.delete(statement)
+
+    def action_do(self, args):
+        line = ' '.join(args.what)
+        if ' ' in line:
+            command, options = line.split(' ', 1)
+        else:
+            command = line
+        if command == 'create':
+            statements = []
+            statement_strs = options.split('|')
+            for sts in statement_strs:
+                parts = []
+                for part in sts.split(' '):
+                    if part == '0':
+                        parts.append(0)
+                    else:
+                        parts.append(self._simple_resolve_reference(part))
+                print("creating s = {}, p = {}, o = {}".format(*parts))
+                statements.append(parts)
+            self.api.create_statements(statements)
+        elif command == 'query':
+            query = self._parse_query_string(options)
+            for row in self.api.query_statements(query):
+                for key, quad in row.items():
+                    if quad is None:
+                        print('  {}: None'.format(key))
+                    else:
+                        print('  {}'.format(key), quad)
+                        #for v in quad:
+                        #    print('    {}'.format(v))
+                print('---')
+
+
+    def _parse_query_string(self, query_string):
+        q = OrderedDict()
+        cur_key = None
+        cur_values = []
+        cur_quote = None
+        last_key = None
+
+        state = 'base'
+        op = None
+
+        for i, c in enumerate(query_string + ' '):
+            if state == 'base':
+                if c == ' ':
+                    continue
+                elif c == '+':
+                    state = 'key'
+                    current = ''
+                    op = 'c'
+                elif c == '=':
+                    state = 'key'
+                    current = ''
+                    op = 'f'
+                else:
+                    state = 'key'
+                    current = c
+                    op = 'j'
+            elif state == 'key':
+                if c == ':':
+                    cur_key = current
+                    state = 'value'
+                    current = ''
+                else:
+                    current += c
+            elif state == 'value':
+                if c == '.':
+                    cur_values.append(self._simple_resolve_reference(current))
+                    current = ''
+                elif c == ' ':
+                    cur_values.append(self._simple_resolve_reference(current))
+                    key = op + '_' + cur_key
+                    if not key in q:
+                        q[key] = []
+                    q[key].append('.'.join(cur_values))
+                    current = None
+                    cur_key = None
+                    cur_values = []
+                    state = 'base'
+                elif c in ['"', "'"]:
+                    state = 'quoted'
+                    cur_quote = c
+                else:
+                    current += c
+            elif state == 'quoted':
+                if c == cur_quote:
+                    state = 'value'
+                    cur_quote = None
+                else:
+                    current += c
+
+        return q
