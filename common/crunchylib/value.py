@@ -53,15 +53,15 @@ class Value(object):
         },
         'datetime': {
             'type': datetime.datetime,
-            'factory': lambda dt: datetime.datetime.strptime(dt, '%Y-%m-%dT%H:%M:%S.%f'),
+            'factory': lambda dt: datetime.datetime.fromisoformat(dt),
             'column_name': 'object_datetime',
-            'serializer': lambda dt: dt.strftime('%Y-%m-%dT%H:%M:%S.%f'),
+            'serializer': lambda dt: dt.isoformat(),
         },
-        'st': {
+        's': {
             'type': Statement,
             'factory': Statement,
             'column_name': 'object_statement_id',
-            'serializer': lambda st: st.uuid,
+            'serializer': lambda s: s.uuid,
         },
         'none': {
             'type': type(None),
@@ -107,8 +107,8 @@ class Value(object):
                 self.vtype = vtype
                 self.column_name = options['column_name']
                 self.serializer = options['serializer']
-                if vtype == 'st':
-                    uuid_ = db_row[db_entities['st'].c.uuid]
+                if vtype == 's':
+                    uuid_ = db_row[db_entities['s'].c.uuid]
                     self.v = Statement(uuid_=uuid_, id_=v)
                 else:
                     self.v = v
@@ -122,7 +122,7 @@ class Value(object):
         return '<Value type={} v={}>'.format(self.vtype, self.v)
 
     def db_value(self):
-        if self.vtype == 'st':
+        if self.vtype == 's':
             return self.v.id
         else:
             return self.v
