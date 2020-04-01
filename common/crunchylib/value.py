@@ -13,6 +13,7 @@ class Statement:
     def __json__(self, request):
         data = {
             'uuid': 'uuid:{}'.format(self.uuid),
+            '_ref': 's:{}'.format(self.uuid),
         }
         for k, vlist in self.attributes.items():
             data[k] = []
