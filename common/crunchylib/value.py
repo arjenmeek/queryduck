@@ -1,12 +1,14 @@
+import base64
 import datetime
 import uuid
 
 from collections import defaultdict
 
+
 class Statement:
 
-    def __init__(self, uuid_=None, id_=None):
-        self.uuid = uuid_
+    def __init__(self, uuid_str=None, uuid_=None, id_=None):
+        self.uuid = uuid.UUID(uuid_str) if uuid_ is None else uuid_
         self.id = id_
         self.attributes = defaultdict(list)
 
@@ -25,7 +27,21 @@ class Statement:
         return '<Statement id={} uuid={}>'.format(self.id, self.uuid)
 
 
-class Value(object):
+class Blob:
+
+    def __init__(self, sha256_str=None, sha256=None, id_=None):
+        self.sha256 = base64.b64decode(sha256_str) if sha256 is None else sha256
+        self.id = id_
+
+    def encoded_sha256(self):
+        r = None if self.sha256 is None else base64.b64encode(self.sha256).decode('utf-8')
+        return r
+
+    def __repr__(self):
+        return '<Blob id={} sha256={}>'.format(self.id, None if self.sha256 is None else self.encoded_sha256())
+
+
+class Value:
 
     value_types = {
         'int': {
@@ -63,6 +79,12 @@ class Value(object):
             'factory': Statement,
             'column_name': 'object_statement_id',
             'serializer': lambda s: s.uuid,
+        },
+        'blob': {
+            'type': Blob,
+            'factory': Blob,
+            'column_name': 'object_blob_id',
+            'serializer': lambda b: b.encoded_sha256(),
         },
         'none': {
             'type': type(None),
@@ -111,6 +133,9 @@ class Value(object):
                 if vtype == 's':
                     uuid_ = db_row[db_entities['s'].c.uuid]
                     self.v = Statement(uuid_=uuid_, id_=v)
+                elif vtype == 'blob':
+                    sha256 = db_row[db_entities['blob'].c.sha256]
+                    self.v = Blob(sha256=sha256, id_=v)
                 else:
                     self.v = v
                 break
@@ -123,7 +148,7 @@ class Value(object):
         return '<Value type={} v={}>'.format(self.vtype, self.v)
 
     def db_value(self):
-        if self.vtype == 's':
+        if self.vtype in ('s', 'blob'):
             return self.v.id
         else:
             return self.v
@@ -135,3 +160,22 @@ class Value(object):
 
     def serialize(self):
         return '{}:{}'.format(self.vtype, self.serializer(self.v))
+
+
+class ValueList:
+
+    comparison_methods = {
+        'in': 'in_',
+    }
+
+    def __init__(self, values):
+        self.values = values
+
+    def __repr__(self):
+        return 'ValueList {}>'.format(self.values)
+
+    def column_compare(self, op, columns):
+        column = columns[self.values[0].column_name]
+        op_method = self.comparison_methods[op]
+        db_values = [v.db_value() for v in self.values]
+        return getattr(column, op_method)(db_values)
