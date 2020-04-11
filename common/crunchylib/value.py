@@ -7,10 +7,13 @@ from collections import defaultdict
 
 class Statement:
 
-    def __init__(self, uuid_str=None, uuid_=None, id_=None):
+    def __init__(self, uuid_str=None, uuid_=None, id_=None, subject=None, predicate=None, object_=None):
         self.uuid = uuid.UUID(uuid_str) if uuid_ is None else uuid_
         self.id = id_
         self.attributes = defaultdict(list)
+        self.subject = subject
+        self.predicate = predicate
+        self.object = object_
 
     def __json__(self, request):
         data = {
@@ -24,7 +27,11 @@ class Statement:
         return data
 
     def __repr__(self):
-        return '<Statement id={} uuid={}>'.format(self.id, self.uuid)
+        parts = ['{}={}'.format(k, getattr(self, k))
+            for k in ('uuid', 'id', 'subject', 'predicate', 'object')
+            if getattr(self, k) is not None
+        ]
+        return '<Statement {}>'.format(' '.join(parts))
 
 
 class Blob:
