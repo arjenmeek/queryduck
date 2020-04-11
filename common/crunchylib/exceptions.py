@@ -5,3 +5,7 @@ class GeneralError(Exception):
 class NotFoundError(Exception):
     """Exception to be raised when a requested resource could not be found."""
     pass
+
+class CVValueError(Exception):
+    """Something went wrong in serializing, deserializing or using a value."""
+    pass
