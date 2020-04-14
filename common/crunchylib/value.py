@@ -49,7 +49,7 @@ value_types = {
         'type': Blob,
         'factory': Blob,
         'column_name': 'object_blob_id',
-        'serializer': lambda b: b.encoded_sha256(),
+        'serializer': lambda b: b.serialize(),
     },
     'none': {
         'type': type(None),
@@ -80,6 +80,7 @@ value_comparison_methods = {
     'contains': 'contains',
     'startswith': 'startswith',
     'endswith': 'endswith',
+    'in': 'in_',
 }
 
 list_comparison_methods = {
@@ -87,7 +88,7 @@ list_comparison_methods = {
 }
 
 
-def _process_db_row(db_row, db_columns, db_entities):
+def process_db_row(db_row, db_columns, db_entities):
     for try_vtype, options in value_types.items():
         column = db_columns[options['column_name']]
         db_value = db_row[column]
@@ -103,7 +104,13 @@ def _process_db_row(db_row, db_columns, db_entities):
         v = Statement(uuid_=uuid_, id_=db_value)
     elif vtype == 'blob':
         sha256 = db_row[db_entities['blob'].c.sha256]
-        v = Blob(sha256=sha256, id_=db_value)
+        if db_entities['volume'].c.reference in db_row:
+            v = Blob(sha256=sha256, id_=db_value,
+                volume=db_row[db_entities['volume'].c.reference],
+                path=db_row[db_entities['file'].c.path]
+            )
+        else:
+            v = Blob(sha256=sha256, id_=db_value)
     else:
         v = db_value
 
@@ -130,6 +137,17 @@ def deserialize(serialized_value):
     return v
 
 
+def column_compare(value, op, columns):
+    vtype = _get_native_vtype(value[0] if type(value) == list else value)
+    column = columns[value_types[vtype]['column_name']]
+    op_method = value_comparison_methods[op]
+    if type(value) == list:
+        db_value = [v.id if vtype in ('s', 'blob') else v for v in value]
+    else:
+        db_value = value.id if vtype in ('s', 'blob') else value
+    return getattr(column, op_method)(db_value)
+
+
 class Value:
 
     def __init__(self, serialized=None, native=None, db_columns=None, db_row=None, db_entities=None):
@@ -139,7 +157,7 @@ class Value:
             self.vtype = _get_native_vtype(native)
             self.v = native
         elif db_columns is not None and db_row is not None:
-            self.v, self.vtype = _process_db_row(db_row, db_columns, db_entities)
+            self.v, self.vtype = process_db_row(db_row, db_columns, db_entities)
         self.column_name = value_types[self.vtype]['column_name']
         self.serializer = value_types[self.vtype]['serializer']
 
