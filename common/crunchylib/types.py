@@ -49,13 +49,33 @@ class Statement:
 
 class Blob:
 
-    def __init__(self, sha256_str=None, sha256=None, id_=None):
-        self.sha256 = base64.b64decode(sha256_str) if sha256 is None else sha256
+    def __init__(self, serialized=None, sha256=None, id_=None, volume=None, path=None):
         self.id = id_
+        self.volume = volume
+        self.path = path
+        if serialized is not None:
+            if ':' in serialized:
+                enc_sha256, self.volume, enc_path = serialized.split(':')
+                self.path = base64.b64decode(enc_path)
+            else:
+                enc_sha256 = serialized
+        self.sha256 = base64.b64decode(enc_sha256) if sha256 is None else sha256
 
     def encoded_sha256(self):
         r = None if self.sha256 is None else base64.b64encode(self.sha256).decode('utf-8')
         return r
 
+    def serialize(self):
+        if self.volume:
+            return "{}:{}:{}".format(
+                self.encoded_sha256(),
+                self.volume,
+                base64.b64encode(self.path).decode('utf-8'))
+        else:
+            return self.encoded_sha256()
+
     def __repr__(self):
-        return '<Blob id={} sha256={}>'.format(self.id, None if self.sha256 is None else self.encoded_sha256())
+        if self.volume:
+            return '<Blob id={} sha256={} volume={}>'.format(self.id, None if self.sha256 is None else self.encoded_sha256(), self.volume)
+        else:
+            return '<Blob id={} sha256={}>'.format(self.id, None if self.sha256 is None else self.encoded_sha256())
