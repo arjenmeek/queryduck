@@ -1,10 +1,11 @@
-from .types import Statement
+from .types import Statement, Blob
 from .value import deserialize
 
 class StatementSet:
 
     def __init__(self, statements=None):
         self.statements = {}
+        self.blobs = {}
         if statements:
             self.add(statements)
 
@@ -22,6 +23,10 @@ class StatementSet:
                 s.attribute_loader = self.get_statement_attribute
                 self.statements[s.uuid] = s
             return self.statements[s.uuid]
+        elif type(s) == Blob:
+            if s.sha256 not in self.blobs:
+                self.blobs[s.sha256] = s
+            return self.blobs[s.sha256]
         else:
             return s
 
