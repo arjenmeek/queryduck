@@ -46,6 +46,9 @@ class Statement:
             parts.append('complete')
         return '<Statement {}>'.format(' '.join(parts))
 
+    def __eq__(self, other):
+        return {'key': self, 'op': 'eq', 'value': other}
+
 
 class Blob:
 
