@@ -61,8 +61,8 @@ class CrunchyAPI(BaseAPI):
         schema = self.post('schemas/s:{}'.format(schema_uuid), data)
         return schema
 
-    def find_statements(self, filters=None):
-        results = self.get('statements', filters)
+    def get_statement(self, reference):
+        results = self.get('statements/{}'.format(reference))
         return results
 
     def query_statements(self, filters=None):

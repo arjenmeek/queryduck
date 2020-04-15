@@ -8,3 +8,10 @@ class Schema:
 
     def __getattr__(self, attr):
         return self._content[attr]
+
+    def reverse(self, statement):
+        for k, v in self._content.items():
+            if v == statement:
+                return k
+        else:
+            return None

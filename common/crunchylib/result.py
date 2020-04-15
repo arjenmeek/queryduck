@@ -1,5 +1,5 @@
-from .types import Statement, Blob
-from .value import deserialize
+from .types import Statement, Blob, deserialize
+
 
 class StatementSet:
 
