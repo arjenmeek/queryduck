@@ -26,6 +26,9 @@ class StatementSet:
         elif type(s) == Blob:
             if s.sha256 not in self.blobs:
                 self.blobs[s.sha256] = s
+            elif s.volume and not self.blobs[s.sha256].volume:
+                self.blobs[s.sha256].volume = s.volume
+                self.blobs[s.sha256].path = s.path
             return self.blobs[s.sha256]
         else:
             return s
