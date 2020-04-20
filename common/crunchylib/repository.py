@@ -25,8 +25,16 @@ class StatementRepository:
 
     def query(self, *comparisons):
         filters = [c.api_value() for c in comparisons]
+        query = {}
+        for f in filters:
+            if not f['key'] in query:
+                query[f['key']] = {}
+            query[f['key']]['_{}_'.format(f['op'])] = f['value']
 
-        r = self.api.query_statements(filters)
+        query = {k: v['_eq_'] if type(v) == dict and len(v) == 1
+            and '_eq_' in v else v for k, v in query.items()}
+
+        r = self.api.query_statements(query)
         self.sts.add(r['statements'])
         return [self.sts.unique_deserialize(ref) for ref in r['references']]
 
