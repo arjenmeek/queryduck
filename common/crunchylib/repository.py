@@ -1,5 +1,6 @@
 from .result import StatementSet
 from .types import serialize, deserialize, Placeholder
+from .utility import transform_doc
 
 
 class NewStatementList:
@@ -8,9 +9,17 @@ class NewStatementList:
         self.statements = []
 
     def add(self, s, p, o):
-        self.statements.append((s, p, o))
-        p = Placeholder(len(self.statements) - 1)
+        pl = Placeholder(len(self.statements))
+        self.statements.append((
+            s if s is not None else pl,
+            p if p is not None else pl,
+            o if o is not None else pl,
+        ))
+        return pl
 
+    def show(self):
+        for idx, row in enumerate(self.statements):
+            print(idx, row)
 
 class StatementRepository:
 
@@ -23,16 +32,19 @@ class StatementRepository:
         self.sts.add(r['statements'])
         return self.sts.unique_deserialize(r['reference'])
 
-    def query(self, *comparisons):
+    def query(self, *comparisons, query=None):
         filters = [c.api_value() for c in comparisons]
-        query = {}
-        for f in filters:
-            if not f['key'] in query:
-                query[f['key']] = {}
-            query[f['key']]['_{}_'.format(f['op'])] = f['value']
+        if query:
+            query = transform_doc(query, serialize)
+        else:
+            query = {}
+            for f in filters:
+                if not f['key'] in query:
+                    query[f['key']] = {}
+                query[f['key']]['_{}_'.format(f['op'])] = f['value']
 
-        query = {k: v['_eq_'] if type(v) == dict and len(v) == 1
-            and '_eq_' in v else v for k, v in query.items()}
+            query = {k: v['_eq_'] if type(v) == dict and len(v) == 1
+                and '_eq_' in v else v for k, v in query.items()}
 
         r = self.api.query_statements(query)
         self.sts.add(r['statements'])
