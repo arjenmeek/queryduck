@@ -6,9 +6,9 @@ def transform_doc(doc, transform):
     any regular JSON-style document, but more complex value types may lead to
     unexpected results.
     """
-    in_stack = [('doc', doc)]
+    in_stack = [doc]
     out_stack = []
-    new = cur = {}
+    new = None
     while in_stack:
         v = in_stack.pop()
         while v is None and in_stack:
@@ -24,11 +24,13 @@ def transform_doc(doc, transform):
         elif val is not None:
             val = transform(val)
 
-        if type(v) == tuple:
+        if new is None:
+            new = cur = val
+        elif type(v) == tuple:
             cur[transform(v[0])] = val
         elif v is not None:
             cur.append(val)
         if t in (dict, list):
             out_stack.append(cur)
             cur = val
-    return new['doc']
+    return new
