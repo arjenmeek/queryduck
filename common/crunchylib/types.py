@@ -92,6 +92,9 @@ class Placeholder:
     def __init__(self, id_):
         self.id = id_
 
+    def __repr__(self):
+        return '<Placeholder {}>'.format(self.id)
+
 
 value_types = {
     'int': {
