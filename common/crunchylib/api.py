@@ -1,5 +1,7 @@
 import json
 
+from base64 import b64encode
+
 import requests
 
 from requests.exceptions import HTTPError
@@ -76,7 +78,10 @@ class CrunchyAPI(BaseAPI):
     def mutate_files(self, volume_reference, files):
         self.post('volumes/{}/files'.format(volume_reference), files)
 
-    def find_files(self, volume_reference, params):
+    def find_files(self, volume_reference, file_paths):
+        params = [('path', b64encode(str(p).encode('utf-8')))
+            for p in file_paths]
         results = self.get('volumes/{}/files'.format(volume_reference),
             params)
-        return results
+        files = {row['path']: row for row in results['results']}
+        return files
