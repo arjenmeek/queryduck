@@ -9,3 +9,6 @@ class NotFoundError(Exception):
 class CVValueError(Exception):
     """Something went wrong in serializing, deserializing or using a value."""
     pass
+
+class CVSchemaError(Exception):
+    """Something went wrong related to Schemas"""
