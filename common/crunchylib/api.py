@@ -67,6 +67,10 @@ class CrunchyAPI(BaseAPI):
         results = self.get('statements/{}'.format(reference))
         return results
 
+    def get_statements(self):
+        results = self.get('statements')
+        return results
+
     def query_statements(self, query=None):
         results = self.post('statements/query',
             {'query': query if query else {}})

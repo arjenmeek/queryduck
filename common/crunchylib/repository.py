@@ -32,6 +32,13 @@ class StatementRepository:
         self.sts.add(r['statements'])
         return self.sts.unique_deserialize(r['reference'])
 
+    def export_statements(self):
+        r = self.api.get_statements()
+        return r['statements']
+
+    def import_statements(self, ser_statements):
+        self.api.create_statements(ser_statements)
+
     def query(self, *comparisons, query=None):
         filters = [c.api_value() for c in comparisons]
         if query:
