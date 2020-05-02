@@ -3,6 +3,7 @@ import datetime
 import uuid
 
 from collections import defaultdict
+from decimal import Decimal
 
 from .exceptions import CVValueError
 
@@ -109,6 +110,12 @@ value_types = {
         'column_name': 'object_boolean',
         'serializer': str,
     },
+    'dec': {
+        'type': Decimal,
+        'factory': Decimal,
+        'column_name': 'object_decimal',
+        'serializer': str,
+    },
     'float': {
         'type': float,
         'factory': float,
@@ -150,6 +157,7 @@ value_types = {
 value_types_by_native = {
     int: 'int',
     bool: 'bool',
+    Decimal: 'dec',
     float: 'float',
     str: 'str',
     datetime.datetime: 'datetime',
