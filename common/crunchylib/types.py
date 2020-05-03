@@ -10,9 +10,9 @@ from .exceptions import CVValueError
 
 class Statement:
 
-    def __init__(self, uuid_str=None, uuid_=None, id_=None, triple=None,
+    def __init__(self, uuid_=None, id_=None, triple=None,
             attribute_loader=None):
-        self.uuid = uuid.UUID(uuid_str) if uuid_ is None else uuid_
+        self.uuid = uuid.UUID(uuid_) if type(uuid_) == str else uuid_
         self.id = id_
         self.attributes = defaultdict(list)
         self.triple = triple
@@ -26,7 +26,7 @@ class Statement:
 
     def __hash__(self):
         if self.uuid is None:
-            raise CVValueError("Attempted to use Statement without known UUID as hashable")
+            return hash(self.id)
         return hash(self.uuid)
 
     def __json__(self, request):
@@ -86,6 +86,9 @@ class Blob:
             return '<Blob id={} sha256={} volume={}>'.format(self.id, None if self.sha256 is None else self.encoded_sha256(), self.volume)
         else:
             return '<Blob id={} sha256={}>'.format(self.id, None if self.sha256 is None else self.encoded_sha256())
+
+    def __hash__(self):
+        return hash(self.sha256)
 
 
 class Placeholder:

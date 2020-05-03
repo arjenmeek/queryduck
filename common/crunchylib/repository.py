@@ -1,25 +1,50 @@
 from .result import StatementSet
-from .types import serialize, deserialize, Placeholder
+from .types import Statement, serialize, deserialize, Placeholder
 from .utility import transform_doc
 
 
-class NewStatementList:
+class Transaction:
 
-    def __init__(self):
+    def __init__(self, repository):
+        self.repository = repository
         self.statements = []
 
     def add(self, s, p, o):
-        pl = Placeholder(len(self.statements))
-        self.statements.append((
-            s if s is not None else pl,
-            p if p is not None else pl,
-            o if o is not None else pl,
-        ))
-        return pl
+        st = Statement(id_=len(self.statements))
+        st.triple = (
+            s if s is not None else st,
+            p if p is not None else st,
+            o if o is not None else st,
+        )
+        self.statements.append(st)
+        return st
+
+    def ensure(self, s, p, o):
+        current = self.find(s, p, o)
+        if len(current) == 0:
+            return self.add(s, p, o)
+        else:
+            return current[0]
+
+    def find(self, s=None, p=None, o=None):
+        statements = []
+        for st in self.statements:
+            if st.triple is not None and \
+                    (s is None or st.triple[0] == s) and \
+                    (p is None or st.triple[1] == p) and \
+                    (o is None or st.triple[2] == o):
+                statements.append(st)
+        if s.uuid and p.uuid and (type(o) != Statement or o.uuid):
+            statements += self.repository.sts.find(s, p, o)
+        else:
+            print("NOPE", s, p, o)
+
+        return statements
 
     def show(self):
         for idx, row in enumerate(self.statements):
-            print(idx, row)
+            print(idx, row, row.triple)
+
 
 class StatementRepository:
 
@@ -57,13 +82,14 @@ class StatementRepository:
         self.sts.add(r['statements'])
         return [self.sts.unique_deserialize(ref) for ref in r['references']]
 
-    def create(self, statementlist):
-        if len(statementlist.statements) == 0:
+    def submit(self, transaction):
+        if len(transaction.statements) == 0:
             return None
         ser_statements = []
-        for s in statementlist.statements:
-            ser_statements.append([v.id if type(v) == Placeholder
-                else serialize(v) for v in s])
+        for s in transaction.statements:
+            ser_statements.append([v.id
+                if type(v) == Statement and v.uuid is None
+                else serialize(v) for v in s.triple])
         self.api.create_statements(ser_statements)
 
     def load_schema(self, root_uuid, keys):
@@ -72,3 +98,6 @@ class StatementRepository:
         for k, v in schema_simple.items():
             schema[k] = self.sts.unique_deserialize(v)
         return schema
+
+    def transaction(self):
+        return Transaction(self)

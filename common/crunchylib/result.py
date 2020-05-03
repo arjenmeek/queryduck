@@ -40,18 +40,18 @@ class StatementSet:
             self.statements[uuid_] = s
         return self.statements[uuid_]
 
-    def find(self, subject=None, predicate=None, object_=None):
+    def find(self, s=None, p=None, o=None):
         statements = []
-        for s in self.statements.values():
-            if s.triple is not None and \
-                    (subject is None or s.triple[0] == subject) and \
-                    (predicate is None or s.triple[1] == predicate) and \
-                    (object_ is None or s.triple[2] == object_):
-                statements.append(s)
+        for st in self.statements.values():
+            if st.triple is not None and \
+                    (s is None or st.triple[0] == s) and \
+                    (p is None or st.triple[1] == p) and \
+                    (o is None or st.triple[2] == o):
+                statements.append(st)
         return statements
 
     def get_statement_attribute(self, statement, predicate):
-        return [s.triple[2] for s in self.find(subject=statement, predicate=predicate)]
+        return [s.triple[2] for s in self.find(s=statement, p=predicate)]
 
 
 class ResultSet:
