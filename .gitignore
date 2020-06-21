@@ -5,6 +5,3 @@ cliclient/config.yml
 drafts
 ignored
 server/config.yml
-webclient/dist/*
-webclient/node_modules
-webclient/yarn.lock
