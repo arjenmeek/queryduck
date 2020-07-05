@@ -8,6 +8,11 @@ from decimal import Decimal
 from .exceptions import CVValueError
 
 
+class Filter:
+
+    def __init__(self, op):
+        self.op = op
+
 class Statement:
 
     def __init__(self, uuid_=None, id_=None, triple=None,
@@ -167,6 +172,7 @@ value_types_by_native = {
     Statement: 's',
     Blob: 'blob',
     type(None): 'none',
+    Filter: 'filter',
 }
 
 value_comparison_methods = {
@@ -228,6 +234,8 @@ def _process_serialized_value(serialized_value):
 
 def serialize(native_value):
     vtype = _get_native_vtype(native_value)
+    if vtype == 'filter':
+        return native_value.op
     serialized = '{}:{}'.format(vtype, value_types[vtype]['serializer'](native_value))
     return serialized
 
