@@ -90,7 +90,7 @@ class StatementRepository:
             ser_statements.append([v.id
                 if type(v) == Statement and v.uuid is None
                 else serialize(v) for v in s.triple])
-        self.api.create_statements(ser_statements)
+        return self.api.create_statements(ser_statements)
 
     def load_schema(self, root_uuid, keys):
         schema_simple = self.api.establish_schema(root_uuid, keys)
