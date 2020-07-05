@@ -12,7 +12,6 @@ class StatementSet:
     def add(self, statements):
         for ref, info in statements.items():
             s = self.unique_deserialize(ref)
-            s.attribute_loader = self.get_statement_attribute
             s.triple = tuple(self.unique_deserialize(r) for r in info)
 
     def unique_deserialize(self, ref):
@@ -20,7 +19,6 @@ class StatementSet:
         s = deserialize(ref)
         if type(s) == Statement:
             if s.uuid not in self.statements:
-                s.attribute_loader = self.get_statement_attribute
                 self.statements[s.uuid] = s
             return self.statements[s.uuid]
         elif type(s) == Blob:
@@ -36,7 +34,6 @@ class StatementSet:
     def get(self, uuid_):
         if not uuid_ in self.statements:
             s = Statement(uuid_=uuid_)
-            s.attribute_loader = self.get_statement_attribute
             self.statements[uuid_] = s
         return self.statements[uuid_]
 
