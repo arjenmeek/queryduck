@@ -41,6 +41,9 @@ class Transaction:
 
         return statements
 
+    def get_statement_attribute(self, statement, predicate):
+        return [s.triple[2] for s in self.find(s=statement, p=predicate)]
+
     def show(self):
         for idx, row in enumerate(self.statements):
             print(idx, row, row.triple)
@@ -81,6 +84,9 @@ class StatementRepository:
         r = self.api.query_statements(query)
         self.sts.add(r['statements'])
         return [self.sts.unique_deserialize(ref) for ref in r['references']]
+
+    def get_statement_attribute(self, statement, predicate):
+        return self.sts.get_statement_attribute(statement, predicate)
 
     def submit(self, transaction):
         if len(transaction.statements) == 0:
