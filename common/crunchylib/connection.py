@@ -9,7 +9,7 @@ from requests.exceptions import HTTPError
 from .exceptions import NotFoundError
 
 
-class BaseAPI(object):
+class APIWrapper(object):
     """Simple generic wrapper class for RESTful API's."""
 
     def __init__(self, url):
@@ -53,7 +53,7 @@ class BaseAPI(object):
         return r.json()
 
 
-class CrunchyAPI(BaseAPI):
+class Connection(APIWrapper):
 
     def get_schema(self, schema_uuid):
         schema = self.get('schemas/s:{}'.format(schema_uuid))
