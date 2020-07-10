@@ -1,71 +1,48 @@
-from .result import StatementSet
-from .types import Statement, serialize, deserialize, Placeholder
+import weakref
+
+from .bindings import Bindings
+from .types import Statement, Blob, serialize, deserialize
+from .result import Result
 from .utility import transform_doc
-
-
-class Transaction:
-
-    def __init__(self, repository):
-        self.repository = repository
-        self.statements = []
-
-    def add(self, s, p, o):
-        st = Statement(id_=len(self.statements))
-        st.triple = (
-            s if s is not None else st,
-            p if p is not None else st,
-            o if o is not None else st,
-        )
-        self.statements.append(st)
-        return st
-
-    def ensure(self, s, p, o):
-        current = self.find(s, p, o)
-        if len(current) == 0:
-            return self.add(s, p, o)
-        else:
-            return current[0]
-
-    def find(self, s=None, p=None, o=None):
-        statements = []
-        for st in self.statements:
-            if st.triple is not None and \
-                    (s is None or st.triple[0] == s) and \
-                    (p is None or st.triple[1] == p) and \
-                    (o is None or st.triple[2] == o):
-                statements.append(st)
-        if s.uuid and p.uuid and (type(o) != Statement or o.uuid):
-            statements += self.repository.sts.find(s, p, o)
-        else:
-            print("NOPE", s, p, o)
-
-        return statements
-
-    def get_statement_attribute(self, statement, predicate):
-        return [s.triple[2] for s in self.find(s=statement, p=predicate)]
-
-    def show(self):
-        for idx, row in enumerate(self.statements):
-            print(idx, row, row.triple)
 
 
 class StatementRepository:
 
-    def __init__(self, api):
-        self.api = api
-        self.sts = StatementSet()
-
-    def get(self, reference):
-        r = self.api.get_statement(reference)
-        self.sts.add(r['statements'])
-        return self.sts.unique_deserialize(r['reference'])
+    def __init__(self, connection):
+        self.connection = connection
+        self.statement_map = weakref.WeakValueDictionary()
+        self.blob_map = weakref.WeakValueDictionary()
 
     def export_statements(self):
-        r = self.api.get_statements()
+        r = self.connection.get_statements()
         return r['statements']
 
     def import_statements(self, ser_statements):
-        self.api.create_statements(ser_statements)
+        self.connection.create_statements(ser_statements)
+
+    def unique_deserialize(self, ref):
+        """Ensures there is only ever one instance of the same Statement present"""
+        s = deserialize(ref)
+        if type(s) == Statement:
+            if s.uuid not in self.statement_map:
+                self.statement_map[s.uuid] = s
+            return self.statement_map[s.uuid]
+        elif type(s) == Blob:
+            if s.sha256 not in self.blob_map:
+                self.blob_map[s.sha256] = s
+            elif s.volume and not self.blobs[s.sha256].volume:
+                self.blobs[s.sha256].volume = s.volume
+                self.blobs[s.sha256].path = s.path
+            return self.blobs[s.sha256]
+        else:
+            return s
+
+    def bindings_from_schema(self, schema):
+        bindings_content = {}
+        for k, v in schema['bindings'].items():
+            bindings_content[k] = self.unique_deserialize(v)
+        bindings = Bindings(bindings_content)
+        return bindings
 
     def query(self, *comparisons, query=None):
         filters = [c.api_value() for c in comparisons]
@@ -81,29 +58,38 @@ class StatementRepository:
             query = {k: v['_eq_'] if type(v) == dict and len(v) == 1
                 and '_eq_' in v else v for k, v in query.items()}
 
-        r = self.api.query_statements(query)
-        self.sts.add(r['statements'])
-        return [self.sts.unique_deserialize(ref) for ref in r['references']]
+        response = self.connection.query_statements(query)
+        result = self._result_from_response(response)
+        return result
 
-    def get_statement_attribute(self, statement, predicate):
-        return self.sts.get_statement_attribute(statement, predicate)
+    def _result_from_response(self, response):
+        statements = {}
+        for k, v in response['statements'].items():
+            statement = self.unique_deserialize(k)
+            if statement.triple is None:
+                statement.triple = (
+                    self.unique_deserialize(v[0]),
+                    self.unique_deserialize(v[1]),
+                    self.unique_deserialize(v[2]),
+                )
+            statements[statement.uuid] = statement
+
+        values = []
+        for ref in response['references']:
+            value = self.unique_deserialize(ref)
+            values.append(value)
+        result = Result(statements=statements, values=values)
+        return result
+
+    def raw_create(self, ser_statements):
+        return self.connection.create_statements(ser_statements)
 
     def submit(self, transaction):
         if len(transaction.statements) == 0:
             return None
         ser_statements = []
         for s in transaction.statements:
-            ser_statements.append([v.id
+            ser_statements.append([None] + [v.id
                 if type(v) == Statement and v.uuid is None
                 else serialize(v) for v in s.triple])
-        return self.api.create_statements(ser_statements)
-
-    def load_schema(self, root_uuid, keys):
-        schema_simple = self.api.establish_schema(root_uuid, keys)
-        schema = {}
-        for k, v in schema_simple.items():
-            schema[k] = self.sts.unique_deserialize(v)
-        return schema
-
-    def transaction(self):
-        return Transaction(self)
+        return self.connection.create_statements(ser_statements)
