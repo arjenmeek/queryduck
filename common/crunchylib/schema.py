@@ -20,3 +20,16 @@ class Schema:
                 return k
         else:
             return None
+
+class SchemaProcessor:
+
+    def fill_prototype(self, prototype):
+        pass # TODO
+
+    def statements_from_schema(self, schema):
+        statements = []
+        for prototype in schema['statements']:
+            statement = [v if ':' in v else schema['bindings'][v]
+                for v in prototype]
+            statements.append(statement)
+        return statements
