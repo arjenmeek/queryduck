@@ -1,0 +1,144 @@
+{
+  "bindings": {
+    "Resource": "s:b44b0ee4-96a6-49c1-8dad-a6752e9eb07b",
+    "Class": "s:2ba2f250-ca7d-4d95-8b64-144c342e34a2",
+    "Property": "s:1bc73c77-db4e-4872-b75a-23591c01a6ab",
+    "Datatype": "s:14c94aa4-b96e-4809-b997-e013a6c05728",
+    "Literal": "s:20f480ad-d368-407f-a949-9f1399f6fc58",
+    "String": "s:0100cea3-9d91-4dbc-adfe-a9f213a1aacf",
+    "Integer": "s:0bb6afd9-3a23-47be-be8e-7fa8075f7210",
+    "Blob": "s:efbc5cff-56b9-4897-9f34-bcdc779838bc",
+    "type": "s:251274cf-b119-43c5-a052-5f35eeb3a7ec",
+    "domain": "s:94a27b8b-e206-4d65-b9d1-5f11e611c00b",
+    "range": "s:7c007db3-f6d2-4115-94a8-f5aaad2b1bc7",
+    "subClassOf": "s:81d28124-ae3e-4634-a3ec-ef5bd35f9a1b",
+    "subPropertyOf": "s:dec110d2-c5e9-4b3e-8d23-bd47504997ae",
+    "label": "s:f2d059fb-9c06-4237-a7a2-64aaa6f9a1b5",
+
+    "ComputerFile": "s:182e2c0f-2eb4-4960-b986-788e3e38c80e",
+    "VideoFile": "s:6d43f8f9-0198-4c31-97aa-424c2e450c7d",
+    "ImageFile": "s:04be15dc-9d27-4654-a750-14049c4c3e82",
+    "AudioFile": "s:fe9f2ef5-1065-49c1-848f-1fa0df5198c6",
+    "DocumentFile": "s:a3069f1e-885a-4aa4-acfa-f1032a29b1de",
+    "ArchiveFile": "s:64aba9f6-b97a-45be-9418-69fc5ca1b594",
+    "fileContent": "s:dfae61ef-8382-42eb-9a9a-cc3975a328f2"
+  },
+
+  "statements": [
+    [ "Resource", "Resource", "type","Resource" ],
+    [ "s:2cfb7b48-30a8-41a5-9424-11482dabeaf7", "Resource", "type", "Class" ],
+    [ "s:bb531cc9-b35f-431d-b6e3-89300c79fa2e", "Resource", "label", "str:Resource" ],
+
+    [ "Class", "Class", "type", "Resource" ],
+    [ "s:0a8a120b-b154-4b40-8fd1-b4672fe4b92b", "Class", "type", "Class" ],
+    [ "s:bac50a5b-e2a2-4cea-bf2b-8edcac6b0fdf", "Class", "label", "str:Class" ],
+    [ "s:56245e95-c7b0-47fd-834c-9d917449788f", "Class", "subClassOf", "Resource" ],
+
+    [ "Property", "Property", "type", "Resource" ],
+    [ "s:e2693357-1064-422d-8e49-4b15fab6d377", "Property", "type", "Class" ],
+    [ "s:5c6b9dc7-0e38-4b8b-80ae-419aa4bd8909", "Property", "label", "Property" ],
+    [ "s:f0bcf183-d566-4c25-92db-4b6748d86a45", "Property", "subClassOf", "Resource" ],
+
+    [ "Datatype", "Datatype", "type", "Resource" ],
+    [ "s:2a366ee8-fac1-4220-9fba-ed0a1767dc19", "Datatype", "type", "Class" ],
+    [ "s:b82d3939-0c51-4171-867b-0437f9224d14", "Datatype", "label", "str:Datatype" ],
+    [ "s:c70c0167-c7bd-471c-ae32-da5ab4e6fe72", "Datatype", "subClassOf", "Class" ],
+
+    [ "Literal", "Literal", "type", "Resource" ],
+    [ "s:c2e4c8bc-9db8-47ca-94f0-35cb2af048f8", "Literal", "type", "Class" ],
+    [ "s:f7de8a37-534e-451b-9ef5-64ea1c3dff6f", "Literal", "label", "str:Literal" ],
+    [ "s:11fed3e1-1a0c-4240-88dc-b95145909303", "Literal", "subClassOf", "Resource" ],
+
+    [ "String", "String", "type", "Resource" ],
+    [ "s:982fde91-7af6-4367-8ddf-fa5328d73e76", "String", "type", "Class" ],
+    [ "s:f8532f41-912a-44de-9172-16b7846b77ec", "String", "type", "Datatype" ],
+    [ "s:5701bf87-91ed-49a8-ba68-1dae075d3da3", "String", "label", "str:String" ],
+    [ "s:5e0f5601-827b-48d2-af01-6e2a40bc0a1e", "String", "subClassOf", "Literal" ],
+
+    [ "Integer", "Integer", "type", "Resource" ],
+    [ "s:ed25752b-1cf7-42cd-b364-1fc74fbde6df", "Integer", "type", "Class" ],
+    [ "s:2f5afa21-e258-475f-8595-01368451f81c", "Integer", "type", "Datatype" ],
+    [ "s:6fa8bd2b-bab1-49bb-9e7b-b573b2679a80", "Integer", "label", "str:Integer" ],
+    [ "s:495d1f1e-b7a3-4658-9a08-5ea41b36b491", "Integer", "subClassOf", "Literal" ],
+
+    [ "Blob", "Blob", "type", "Resource" ],
+    [ "s:e03bdf54-c2bf-4abb-bbad-2b39a85f16a9", "Blob", "type", "Literal" ],
+    [ "s:5724cf29-a349-4819-b4c2-e1a8d6bdf89c", "Blob", "type", "Datatype" ],
+    [ "s:a188aec2-d01c-4351-890c-c6592f90988c", "Blob", "label", "str:Blob" ],
+    [ "s:99333e44-3546-41fc-b2d0-6f43e98ecb8c", "Blob", "subClassOf", "Literal" ],
+
+    [ "type", "type", "type", "Resource" ],
+    [ "s:856dd17b-c84e-4326-9729-ca8cd4ab12b1", "type", "type", "Property" ],
+    [ "s:52776c9b-2f62-4951-8bd5-e42cad262956", "type", "label", "str:label" ],
+    [ "s:02ca0784-34c2-4d9e-a591-1ace5f1d0137", "type", "domain", "Resource" ],
+    [ "s:8d3deb1b-ac37-4395-b02e-dca0610944ce", "type", "range", "Class" ],
+
+    [ "domain", "domain", "type", "Resource" ],
+    [ "s:eb13db8c-61b7-4328-8d4c-9f108b14df4f", "domain", "type", "Property" ],
+    [ "s:81213c88-dbef-42fb-88fd-512ae78ea870", "domain", "label", "str:domain" ],
+    [ "s:e53e8c28-ee28-46af-b684-50352e6dca13", "domain", "domain", "Property" ],
+    [ "s:550f11c5-e86b-46f0-aff8-58fd8da2c0b0", "domain", "range", "Class" ],
+
+    [ "range", "range", "type", "Resource" ],
+    [ "s:397dee80-58d7-4c32-a680-6bde46ab3088", "range", "type", "Property" ],
+    [ "s:4cefa963-c793-49d8-952b-70716f049627", "range", "label", "str:range" ],
+    [ "s:3944d791-5dfd-4ec1-af7b-da3ec861a17b", "range", "domain", "Property" ],
+    [ "s:e055efe8-96a3-4647-9fca-4f82255450f8", "range", "range", "Class" ],
+
+    [ "subClassOf", "subClassOf", "type", "Resource" ],
+    [ "s:1ef7f07c-1127-41a1-afda-32155e27cd47", "subClassOf", "type", "Property" ],
+    [ "s:7df69d6c-3681-4bc1-822d-0f506c79c135", "subClassOf", "label", "str:subclass of" ],
+    [ "s:299814ef-1403-4284-a7dc-d7c0af928cbe", "subClassOf", "domain", "Class" ],
+    [ "s:2d602a91-7ffd-4e24-af11-9b9f47ccfd27", "subClassOf", "range", "Class" ],
+
+    [ "subPropertyOf", "subPropertyOf", "type", "Resource" ],
+    [ "s:40a56f72-b501-4e84-8ba2-b18afb4843ba", "subPropertyOf", "type", "Property" ],
+    [ "s:78a05b48-6d1c-4fa2-b647-7cba5b983ad1", "subPropertyOf", "label", "str:subproperty of" ],
+    [ "s:b89e9f17-9554-4564-8393-78c7b1f6fc6b", "subPropertyOf", "domain", "Property" ],
+    [ "s:f5f631c8-cc3e-463f-b802-459f090d6f64", "subPropertyOf", "range", "Property" ],
+
+    [ "label", "label", "type", "Resource" ],
+    [ "s:37714abd-bbc3-461d-b3b3-4f4da724ffc9", "label", "type", "Property" ],
+    [ "s:3eea7f58-7a68-411d-b3cb-bb6b28bd3396", "label", "label", "str:label" ],
+    [ "s:a6ce0f09-b199-472e-bd56-a02182c3a479", "label", "domain", "Resource" ],
+    [ "s:4222c201-e1b8-4f08-a735-4af5028aa55a", "label", "range", "String" ],
+
+
+    [ "ComputerFile", "ComputerFile", "type", "Resource" ],
+    [ "s:b24fcc70-90f1-42e4-b877-8c353c8813e3", "ComputerFile", "type", "Class" ],
+    [ "s:daec47e6-2186-49e3-862f-5bcf7cf41ffb", "ComputerFile", "label", "str:Computer file" ],
+    [ "s:88c02c28-3ebd-49e4-812b-55a8310ac17a", "ComputerFile", "subClassOf", "Resource" ],
+
+    [ "VideoFile", "VideoFile", "type", "Resource" ],
+    [ "s:5ffd08f4-43ba-4943-9bee-58dd46b7883e", "VideoFile", "type", "Class" ],
+    [ "s:4b36292d-591c-4040-aa0a-acc7fbbce963", "VideoFile", "label", "str:Video file" ],
+    [ "s:80863b8c-c6e6-4d16-92aa-88c3d24cd560", "VideoFile", "subClassOf", "ComputerFile" ],
+
+    [ "ImageFile", "ImageFile", "type", "Resource" ],
+    [ "s:44ab2b2e-bf2c-4948-b8b2-1c631f2ab190", "ImageFile", "type", "Class" ],
+    [ "s:7fcae8c8-7e88-4141-9dcc-1ea74cf01821", "ImageFile", "label", "str:Image file" ],
+    [ "s:97474d4c-761c-4d33-b235-503dd634d963", "ImageFile", "subClassOf", "ComputerFile" ],
+
+    [ "AudioFile", "AudioFile", "type", "Resource" ],
+    [ "s:160ccf01-0a03-4bb1-ab28-6b8f916bb4e0", "AudioFile", "type", "Class" ],
+    [ "s:c93539cd-543b-4871-9055-03d70209c984", "AudioFile", "label", "str:Audio file" ],
+    [ "s:b9fb202e-cbb3-4978-bdb1-2999e0a69eac", "AudioFile", "subClassOf", "ComputerFile" ],
+
+    [ "DocumentFile", "DocumentFile", "type", "Resource" ],
+    [ "s:ca7bbc28-46db-41d4-bd97-ffbf580d97f8", "DocumentFile", "type", "Class" ],
+    [ "s:17e1291c-2b2a-46a2-8aeb-fb1b4444a13f", "DocumentFile", "label", "str:Document file" ],
+    [ "s:f21cdd42-1ea4-4cda-9244-d5a99a437510", "DocumentFile", "subClassOf", "ComputerFile" ],
+
+    [ "ArchiveFile", "ArchiveFile", "type", "Resource" ],
+    [ "s:afe372ab-6308-4e0a-a7e0-b11e223f621e", "ArchiveFile", "type", "Class" ],
+    [ "s:7124fed6-0802-46ad-9432-59c47238231f", "ArchiveFile", "label", "str:Archive file" ],
+    [ "s:12fc85df-5b46-43a5-867f-adf74a75a54f", "ArchiveFile", "subClassOf", "ComputerFile" ],
+
+    [ "fileContent", "fileContent", "type", "Resource" ],
+    [ "s:ac942a3e-e9d3-4f3a-b89e-87e2c410ad8b", "fileContent", "type", "Property" ],
+    [ "s:addfd815-5a8f-46bc-9bae-1c502303625c", "fileContent", "label", "str:file content" ],
+    [ "s:821dc121-d923-4aaa-816c-46a2c7f95f1e", "fileContent", "domain", "ComputerFile" ],
+    [ "s:3ed9f757-043a-42bd-865a-a9e1d38be7f7", "fileContent", "range", "Blob" ]
+
+  ]
+}
