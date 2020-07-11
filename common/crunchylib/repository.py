@@ -1,6 +1,6 @@
 import weakref
 
-from .bindings import Bindings
+from .schema import Bindings
 from .types import Statement, Blob, serialize, deserialize
 from .result import Result
 from .utility import transform_doc
