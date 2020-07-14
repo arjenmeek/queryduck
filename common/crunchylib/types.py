@@ -202,7 +202,7 @@ def process_db_row(db_row, db_columns, db_entities):
         vtype = try_vtype
         break
     else:
-        raise CVValueError
+        raise CVValueError("Cannot process DB row {}".format(db_row))
 
     if vtype == 's':
         uuid_ = db_row[db_entities['s'].c.uuid]
