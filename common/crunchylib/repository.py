@@ -37,10 +37,11 @@ class StatementRepository:
         else:
             return s
 
-    def bindings_from_schema(self, schema):
+    def bindings_from_schemas(self, schemas):
         bindings_content = {}
-        for k, v in schema['bindings'].items():
-            bindings_content[k] = self.unique_deserialize(v)
+        for schema in schemas:
+            for k, v in schema['bindings'].items():
+                bindings_content[k] = self.unique_deserialize(v)
         bindings = Bindings(bindings_content)
         return bindings
 
