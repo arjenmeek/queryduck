@@ -30,10 +30,10 @@ class StatementRepository:
         elif type(s) == Blob:
             if s.sha256 not in self.blob_map:
                 self.blob_map[s.sha256] = s
-            elif s.volume and not self.blobs[s.sha256].volume:
-                self.blobs[s.sha256].volume = s.volume
-                self.blobs[s.sha256].path = s.path
-            return self.blobs[s.sha256]
+            elif s.volume and not self.blob_map[s.sha256].volume:
+                self.blob_map[s.sha256].volume = s.volume
+                self.blob_map[s.sha256].path = s.path
+            return self.blob_map[s.sha256]
         else:
             return s
 
