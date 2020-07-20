@@ -1,3 +1,5 @@
+import uuid
+
 from .exceptions import CVSchemaError
 
 class Schema:
@@ -24,7 +26,21 @@ class Schema:
 class SchemaProcessor:
 
     def fill_prototype(self, prototype):
-        pass # TODO
+        schema = {}
+        for pk, pv in prototype.items():
+            if pk == 'bindings':
+                schema['bindings'] = {}
+                for k, v in prototype['bindings'].items():
+                    schema['bindings'][k] = \
+                        's:{}'.format(uuid.uuid4()) if v is None else v
+            elif pk == 'statements':
+                schema['statements'] = []
+                for s in prototype['statements']:
+                    schema['statements'].append(['s:{}'.format(uuid.uuid4())
+                        if e is None else e for e in s])
+            else:
+                schema[pk] = pv
+        return schema
 
     def statements_from_schema(self, schema):
         statements = []
