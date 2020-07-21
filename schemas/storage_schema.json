@@ -10,7 +10,13 @@
     "AudioFile": "s:fe9f2ef5-1065-49c1-848f-1fa0df5198c6",
     "DocumentFile": "s:a3069f1e-885a-4aa4-acfa-f1032a29b1de",
     "ArchiveFile": "s:64aba9f6-b97a-45be-9418-69fc5ca1b594",
-    "fileContent": "s:dfae61ef-8382-42eb-9a9a-cc3975a328f2"
+    "CompressedFile": "s:1dfc4a62-f593-4e33-aebc-6623826847fe",
+    "fileContent": "s:dfae61ef-8382-42eb-9a9a-cc3975a328f2",
+    "fileSize": "s:f0eaaf1b-f534-4038-b0d3-ff62c2d98bc4",
+    "widthInPixels": "s:f08cc358-2f81-43b8-812d-c739d3ca31ab",
+    "heightInPixels": "s:61989232-5c12-4c82-b138-80b3f82197f1",
+    "durationInSeconds": "s:58eaecd0-f35c-4d9f-8f37-14e32cab6981",
+    "numberOfFrames": "s:6b3f7e9c-5971-40de-a24b-63b3ff37ebb0"
   },
   "statements": [
     [ "ComputerFile", "ComputerFile", "type", "Resource" ],
@@ -47,7 +53,13 @@
     [ "s:ac942a3e-e9d3-4f3a-b89e-87e2c410ad8b", "fileContent", "type", "Property" ],
     [ "s:addfd815-5a8f-46bc-9bae-1c502303625c", "fileContent", "label", "str:file content" ],
     [ "s:821dc121-d923-4aaa-816c-46a2c7f95f1e", "fileContent", "domain", "ComputerFile" ],
-    [ "s:3ed9f757-043a-42bd-865a-a9e1d38be7f7", "fileContent", "range", "Blob" ]
+    [ "s:3ed9f757-043a-42bd-865a-a9e1d38be7f7", "fileContent", "range", "Blob" ],
+
+    [ "fileSize", "fileSize", "type", "Resource" ],
+    [ "s:0668f784-8877-495e-8cfa-5b301121838a", "fileSize", "type", "Property" ],
+    [ "s:82578ed7-50d3-4fae-9591-5dff1b09a9a4", "fileSize", "label", "str:file size" ],
+    [ "s:e5eedc51-cc57-459e-b4f3-c366e3671393", "fileSize", "domain", "ComputerFile" ],
+    [ "s:dd6eb4ff-8a42-419e-a55a-490a6aa7edb0", "fileSize", "range", "Integer" ]
 
   ]
 }
