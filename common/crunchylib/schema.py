@@ -69,4 +69,4 @@ class Bindings:
             if v == statement:
                 return k
         else:
-            return None
+            return statement
