@@ -1,65 +1,227 @@
 {
-  "schema_name": "storage",
-  "dependencies": [
-    "main"
-  ],
-  "bindings": {
-    "ComputerFile": "s:182e2c0f-2eb4-4960-b986-788e3e38c80e",
-    "VideoFile": "s:6d43f8f9-0198-4c31-97aa-424c2e450c7d",
-    "ImageFile": "s:04be15dc-9d27-4654-a750-14049c4c3e82",
-    "AudioFile": "s:fe9f2ef5-1065-49c1-848f-1fa0df5198c6",
-    "DocumentFile": "s:a3069f1e-885a-4aa4-acfa-f1032a29b1de",
-    "ArchiveFile": "s:64aba9f6-b97a-45be-9418-69fc5ca1b594",
-    "CompressedFile": "s:1dfc4a62-f593-4e33-aebc-6623826847fe",
-    "fileContent": "s:dfae61ef-8382-42eb-9a9a-cc3975a328f2",
-    "fileSize": "s:f0eaaf1b-f534-4038-b0d3-ff62c2d98bc4",
-    "widthInPixels": "s:f08cc358-2f81-43b8-812d-c739d3ca31ab",
-    "heightInPixels": "s:61989232-5c12-4c82-b138-80b3f82197f1",
-    "durationInSeconds": "s:58eaecd0-f35c-4d9f-8f37-14e32cab6981",
-    "numberOfFrames": "s:6b3f7e9c-5971-40de-a24b-63b3ff37ebb0"
-  },
-  "statements": [
-    [ "ComputerFile", "ComputerFile", "type", "Resource" ],
-    [ "s:b24fcc70-90f1-42e4-b877-8c353c8813e3", "ComputerFile", "type", "Class" ],
-    [ "s:daec47e6-2186-49e3-862f-5bcf7cf41ffb", "ComputerFile", "label", "str:Computer file" ],
-    [ "s:88c02c28-3ebd-49e4-812b-55a8310ac17a", "ComputerFile", "subClassOf", "Resource" ],
-
-    [ "VideoFile", "VideoFile", "type", "Resource" ],
-    [ "s:5ffd08f4-43ba-4943-9bee-58dd46b7883e", "VideoFile", "type", "Class" ],
-    [ "s:4b36292d-591c-4040-aa0a-acc7fbbce963", "VideoFile", "label", "str:Video file" ],
-    [ "s:80863b8c-c6e6-4d16-92aa-88c3d24cd560", "VideoFile", "subClassOf", "ComputerFile" ],
-
-    [ "ImageFile", "ImageFile", "type", "Resource" ],
-    [ "s:44ab2b2e-bf2c-4948-b8b2-1c631f2ab190", "ImageFile", "type", "Class" ],
-    [ "s:7fcae8c8-7e88-4141-9dcc-1ea74cf01821", "ImageFile", "label", "str:Image file" ],
-    [ "s:97474d4c-761c-4d33-b235-503dd634d963", "ImageFile", "subClassOf", "ComputerFile" ],
-
-    [ "AudioFile", "AudioFile", "type", "Resource" ],
-    [ "s:160ccf01-0a03-4bb1-ab28-6b8f916bb4e0", "AudioFile", "type", "Class" ],
-    [ "s:c93539cd-543b-4871-9055-03d70209c984", "AudioFile", "label", "str:Audio file" ],
-    [ "s:b9fb202e-cbb3-4978-bdb1-2999e0a69eac", "AudioFile", "subClassOf", "ComputerFile" ],
-
-    [ "DocumentFile", "DocumentFile", "type", "Resource" ],
-    [ "s:ca7bbc28-46db-41d4-bd97-ffbf580d97f8", "DocumentFile", "type", "Class" ],
-    [ "s:17e1291c-2b2a-46a2-8aeb-fb1b4444a13f", "DocumentFile", "label", "str:Document file" ],
-    [ "s:f21cdd42-1ea4-4cda-9244-d5a99a437510", "DocumentFile", "subClassOf", "ComputerFile" ],
-
-    [ "ArchiveFile", "ArchiveFile", "type", "Resource" ],
-    [ "s:afe372ab-6308-4e0a-a7e0-b11e223f621e", "ArchiveFile", "type", "Class" ],
-    [ "s:7124fed6-0802-46ad-9432-59c47238231f", "ArchiveFile", "label", "str:Archive file" ],
-    [ "s:12fc85df-5b46-43a5-867f-adf74a75a54f", "ArchiveFile", "subClassOf", "ComputerFile" ],
-
-    [ "fileContent", "fileContent", "type", "Resource" ],
-    [ "s:ac942a3e-e9d3-4f3a-b89e-87e2c410ad8b", "fileContent", "type", "Property" ],
-    [ "s:addfd815-5a8f-46bc-9bae-1c502303625c", "fileContent", "label", "str:file content" ],
-    [ "s:821dc121-d923-4aaa-816c-46a2c7f95f1e", "fileContent", "domain", "ComputerFile" ],
-    [ "s:3ed9f757-043a-42bd-865a-a9e1d38be7f7", "fileContent", "range", "Blob" ],
-
-    [ "fileSize", "fileSize", "type", "Resource" ],
-    [ "s:0668f784-8877-495e-8cfa-5b301121838a", "fileSize", "type", "Property" ],
-    [ "s:82578ed7-50d3-4fae-9591-5dff1b09a9a4", "fileSize", "label", "str:file size" ],
-    [ "s:e5eedc51-cc57-459e-b4f3-c366e3671393", "fileSize", "domain", "ComputerFile" ],
-    [ "s:dd6eb4ff-8a42-419e-a55a-490a6aa7edb0", "fileSize", "range", "Integer" ]
-
-  ]
+    "schema_name": "storage",
+    "dependencies": [
+        "main"
+    ],
+    "bindings": {
+        "ComputerFile": "s:182e2c0f-2eb4-4960-b986-788e3e38c80e",
+        "VideoFile": "s:6d43f8f9-0198-4c31-97aa-424c2e450c7d",
+        "ImageFile": "s:04be15dc-9d27-4654-a750-14049c4c3e82",
+        "AudioFile": "s:fe9f2ef5-1065-49c1-848f-1fa0df5198c6",
+        "DocumentFile": "s:a3069f1e-885a-4aa4-acfa-f1032a29b1de",
+        "ArchiveFile": "s:64aba9f6-b97a-45be-9418-69fc5ca1b594",
+        "CompressedFile": "s:1dfc4a62-f593-4e33-aebc-6623826847fe",
+        "fileContent": "s:dfae61ef-8382-42eb-9a9a-cc3975a328f2",
+        "fileSize": "s:f0eaaf1b-f534-4038-b0d3-ff62c2d98bc4",
+        "widthInPixels": "s:f08cc358-2f81-43b8-812d-c739d3ca31ab",
+        "heightInPixels": "s:61989232-5c12-4c82-b138-80b3f82197f1",
+        "durationInSeconds": "s:58eaecd0-f35c-4d9f-8f37-14e32cab6981",
+        "numberOfFrames": "s:6b3f7e9c-5971-40de-a24b-63b3ff37ebb0"
+    },
+    "statements": [
+        [
+            "ComputerFile",
+            "ComputerFile",
+            "type",
+            "Resource"
+        ],
+        [
+            "s:b24fcc70-90f1-42e4-b877-8c353c8813e3",
+            "ComputerFile",
+            "type",
+            "Class"
+        ],
+        [
+            "s:daec47e6-2186-49e3-862f-5bcf7cf41ffb",
+            "ComputerFile",
+            "label",
+            "str:Computer file"
+        ],
+        [
+            "s:88c02c28-3ebd-49e4-812b-55a8310ac17a",
+            "ComputerFile",
+            "subClassOf",
+            "Resource"
+        ],
+        [
+            "VideoFile",
+            "VideoFile",
+            "type",
+            "Resource"
+        ],
+        [
+            "s:5ffd08f4-43ba-4943-9bee-58dd46b7883e",
+            "VideoFile",
+            "type",
+            "Class"
+        ],
+        [
+            "s:4b36292d-591c-4040-aa0a-acc7fbbce963",
+            "VideoFile",
+            "label",
+            "str:Video file"
+        ],
+        [
+            "s:80863b8c-c6e6-4d16-92aa-88c3d24cd560",
+            "VideoFile",
+            "subClassOf",
+            "ComputerFile"
+        ],
+        [
+            "ImageFile",
+            "ImageFile",
+            "type",
+            "Resource"
+        ],
+        [
+            "s:44ab2b2e-bf2c-4948-b8b2-1c631f2ab190",
+            "ImageFile",
+            "type",
+            "Class"
+        ],
+        [
+            "s:7fcae8c8-7e88-4141-9dcc-1ea74cf01821",
+            "ImageFile",
+            "label",
+            "str:Image file"
+        ],
+        [
+            "s:97474d4c-761c-4d33-b235-503dd634d963",
+            "ImageFile",
+            "subClassOf",
+            "ComputerFile"
+        ],
+        [
+            "AudioFile",
+            "AudioFile",
+            "type",
+            "Resource"
+        ],
+        [
+            "s:160ccf01-0a03-4bb1-ab28-6b8f916bb4e0",
+            "AudioFile",
+            "type",
+            "Class"
+        ],
+        [
+            "s:c93539cd-543b-4871-9055-03d70209c984",
+            "AudioFile",
+            "label",
+            "str:Audio file"
+        ],
+        [
+            "s:b9fb202e-cbb3-4978-bdb1-2999e0a69eac",
+            "AudioFile",
+            "subClassOf",
+            "ComputerFile"
+        ],
+        [
+            "DocumentFile",
+            "DocumentFile",
+            "type",
+            "Resource"
+        ],
+        [
+            "s:ca7bbc28-46db-41d4-bd97-ffbf580d97f8",
+            "DocumentFile",
+            "type",
+            "Class"
+        ],
+        [
+            "s:17e1291c-2b2a-46a2-8aeb-fb1b4444a13f",
+            "DocumentFile",
+            "label",
+            "str:Document file"
+        ],
+        [
+            "s:f21cdd42-1ea4-4cda-9244-d5a99a437510",
+            "DocumentFile",
+            "subClassOf",
+            "ComputerFile"
+        ],
+        [
+            "ArchiveFile",
+            "ArchiveFile",
+            "type",
+            "Resource"
+        ],
+        [
+            "s:afe372ab-6308-4e0a-a7e0-b11e223f621e",
+            "ArchiveFile",
+            "type",
+            "Class"
+        ],
+        [
+            "s:7124fed6-0802-46ad-9432-59c47238231f",
+            "ArchiveFile",
+            "label",
+            "str:Archive file"
+        ],
+        [
+            "s:12fc85df-5b46-43a5-867f-adf74a75a54f",
+            "ArchiveFile",
+            "subClassOf",
+            "ComputerFile"
+        ],
+        [
+            "fileContent",
+            "fileContent",
+            "type",
+            "Resource"
+        ],
+        [
+            "s:ac942a3e-e9d3-4f3a-b89e-87e2c410ad8b",
+            "fileContent",
+            "type",
+            "Property"
+        ],
+        [
+            "s:addfd815-5a8f-46bc-9bae-1c502303625c",
+            "fileContent",
+            "label",
+            "str:file content"
+        ],
+        [
+            "s:821dc121-d923-4aaa-816c-46a2c7f95f1e",
+            "fileContent",
+            "domain",
+            "ComputerFile"
+        ],
+        [
+            "s:3ed9f757-043a-42bd-865a-a9e1d38be7f7",
+            "fileContent",
+            "range",
+            "Blob"
+        ],
+        [
+            "fileSize",
+            "fileSize",
+            "type",
+            "Resource"
+        ],
+        [
+            "s:0668f784-8877-495e-8cfa-5b301121838a",
+            "fileSize",
+            "type",
+            "Property"
+        ],
+        [
+            "s:82578ed7-50d3-4fae-9591-5dff1b09a9a4",
+            "fileSize",
+            "label",
+            "str:file size"
+        ],
+        [
+            "s:e5eedc51-cc57-459e-b4f3-c366e3671393",
+            "fileSize",
+            "domain",
+            "ComputerFile"
+        ],
+        [
+            "s:dd6eb4ff-8a42-419e-a55a-490a6aa7edb0",
+            "fileSize",
+            "range",
+            "Integer"
+        ]
+    ]
 }
