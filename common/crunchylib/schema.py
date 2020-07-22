@@ -1,6 +1,7 @@
 import uuid
 
 from .exceptions import CVSchemaError
+from .types import serialize
 
 class Schema:
 
@@ -42,10 +43,10 @@ class SchemaProcessor:
                 schema[pk] = pv
         return schema
 
-    def statements_from_schema(self, schema):
+    def statements_from_schema(self, bindings, schema):
         statements = []
         for prototype in schema['statements']:
-            statement = [v if ':' in v else schema['bindings'][v]
+            statement = [v if ':' in v else serialize(bindings[v])
                 for v in prototype]
             statements.append(statement)
         return statements
