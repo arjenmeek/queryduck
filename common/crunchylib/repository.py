@@ -82,6 +82,12 @@ class StatementRepository:
         result = Result(statements=statements, values=values)
         return result
 
+    def create(self, rows):
+        ser_statements = []
+        for r in rows:
+            ser_statements.append([serialize(s) for s in r])
+        return self.connection.create_statements(ser_statements)
+
     def raw_create(self, ser_statements):
         return self.connection.create_statements(ser_statements)
 
@@ -93,4 +99,4 @@ class StatementRepository:
             ser_statements.append([None] + [v.id
                 if type(v) == Statement and v.uuid is None
                 else serialize(v) for v in s.triple])
-        return self.connection.create_statements(ser_statements)
+        return self.connection.submit_transaction(ser_statements)
