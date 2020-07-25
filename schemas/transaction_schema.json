@@ -1,0 +1,52 @@
+{
+    "schema_name": "transaction",
+    "dependencies": [
+        "main"
+    ],
+    "bindings": {
+        "Transaction": "s:4c2efd6b-2a6e-4aab-a74e-d0e6a8730da8",
+        "User": "s:636b15e6-574a-4842-bf36-d7bc5b72f33c",
+        "createdAt": "s:8c32183d-71f2-4f06-b4f8-1dfb7dcb4a5d",
+        "createdBy": "s:9335960b-5c55-40fa-86ab-2a49419fcee0",
+        "transactionContains": "s:ad0d29c0-1d20-4d1b-b151-29c6d1cdd1dd",
+        "statementCount": "s:637ac2dc-0a5b-47e8-8185-91cae0e07d0c"
+    },
+    "statements": [
+        [
+            "Transaction",
+            "Transaction",
+            "type",
+            "Resource"
+        ],
+        [
+            "User",
+            "User",
+            "type",
+            "Resource"
+        ],
+        [
+            "createdAt",
+            "createdAt",
+            "type",
+            "Resource"
+        ],
+        [
+            "createdBy",
+            "createdBy",
+            "type",
+            "Resource"
+        ],
+        [
+            "transactionContains",
+            "transactionContains",
+            "type",
+            "Resource"
+        ],
+        [
+            "statementCount",
+            "statementCount",
+            "type",
+            "Resource"
+        ]
+    ]
+}
