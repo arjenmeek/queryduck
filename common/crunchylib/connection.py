@@ -12,9 +12,10 @@ from .exceptions import NotFoundError
 class APIWrapper(object):
     """Simple generic wrapper class for RESTful API's."""
 
-    def __init__(self, url):
+    def __init__(self, url, username, password):
         """Make the provided API URL available."""
         self.url = url
+        self.auth = (username, password)
 
     def _raise_from_request(self, r):
         """Call the raise_for_status Requests method and handle result."""
@@ -28,27 +29,29 @@ class APIWrapper(object):
 
     def get(self, path, params=None):
         """Perform a GET request to a path."""
-        r = requests.get('{}/{}'.format(self.url, path), params=params)
+        r = requests.get('{}/{}'.format(self.url, path),
+            params=params, auth=self.auth)
         self._raise_from_request(r)
         return r.json()
 
     def post(self, path, data):
         """Perform a POST request to a path with a JSON-serialized body."""
         r = requests.post('{}/{}'.format(self.url, path),
-            data=json.dumps(data))
+            data=json.dumps(data), auth=self.auth)
         self._raise_from_request(r)
         return r.json()
 
     def put(self, path, data):
         """Perform a PUT request to a path with a JSON-serialized body."""
         r = requests.put('{}/{}'.format(self.url, path),
-            data=json.dumps(data))
+            data=json.dumps(data), auth=self.auth)
         self._raise_from_request(r)
         return r.json()
 
     def delete(self, path, params=None):
         """Perform a DELETE request to a path."""
-        r = requests.delete('{}/{}'.format(self.url, path), params=params)
+        r = requests.delete('{}/{}'.format(self.url, path),
+            params=params, auth=self.auth)
         self._raise_from_request(r)
         return r.json()
 
@@ -78,6 +81,10 @@ class Connection(APIWrapper):
 
     def create_statements(self, statements):
         results = self.post('statements', statements)
+        return results
+
+    def submit_transaction(self, statements):
+        results = self.post('statements/transaction', statements)
         return results
 
     def mutate_files(self, volume_reference, files):
