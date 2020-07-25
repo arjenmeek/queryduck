@@ -1,6 +1,6 @@
 import json
 
-from base64 import b64encode
+from base64 import urlsafe_b64encode
 
 import requests
 
@@ -91,7 +91,7 @@ class Connection(APIWrapper):
         self.post('volumes/{}/files'.format(volume_reference), files)
 
     def find_files(self, volume_reference, file_paths):
-        params = [('path', b64encode(str(p).encode('utf-8')))
+        params = [('path', urlsafe_b64encode(str(p).encode('utf-8')))
             for p in file_paths]
         results = self.get('volumes/{}/files'.format(volume_reference),
             params)

@@ -69,13 +69,13 @@ class Blob:
         if serialized is not None:
             if ':' in serialized:
                 enc_sha256, self.volume, enc_path = serialized.split(':')
-                self.path = base64.b64decode(enc_path)
+                self.path = base64.urlsafe_b64decode(enc_path)
             else:
                 enc_sha256 = serialized
-        self.sha256 = base64.b64decode(enc_sha256) if sha256 is None else sha256
+        self.sha256 = base64.urlsafe_b64decode(enc_sha256) if sha256 is None else sha256
 
     def encoded_sha256(self):
-        r = None if self.sha256 is None else base64.b64encode(self.sha256).decode('utf-8')
+        r = None if self.sha256 is None else base64.urlsafe_b64encode(self.sha256).decode('utf-8')
         return r
 
     def serialize(self):
@@ -83,7 +83,7 @@ class Blob:
             return "{}:{}:{}".format(
                 self.encoded_sha256(),
                 self.volume,
-                base64.b64encode(self.path).decode('utf-8'))
+                base64.urlsafe_b64encode(self.path).decode('utf-8'))
         else:
             return self.encoded_sha256()
 
