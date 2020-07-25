@@ -22,6 +22,7 @@ class Statement:
         self.attributes = defaultdict(list)
         self.triple = triple
         self.attribute_loader = attribute_loader
+        self.saved = False
 
     def __getitem__(self, attr):
         """Make Statement subscriptable"""
