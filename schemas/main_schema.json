@@ -8,6 +8,7 @@
         "Literal": "s:20f480ad-d368-407f-a949-9f1399f6fc58",
         "String": "s:0100cea3-9d91-4dbc-adfe-a9f213a1aacf",
         "Integer": "s:0bb6afd9-3a23-47be-be8e-7fa8075f7210",
+        "Decimal": "s:abb201dc-c47b-418d-995b-a617b4b19199",
         "Blob": "s:efbc5cff-56b9-4897-9f34-bcdc779838bc",
         "type": "s:251274cf-b119-43c5-a052-5f35eeb3a7ec",
         "domain": "s:94a27b8b-e206-4d65-b9d1-5f11e611c00b",
@@ -188,6 +189,36 @@
         [
             "s:495d1f1e-b7a3-4658-9a08-5ea41b36b491",
             "Integer",
+            "subClassOf",
+            "Literal"
+        ],
+        [
+            "Decimal",
+            "Decimal",
+            "type",
+            "Resource"
+        ],
+        [
+            "s:1bc9ad63-e4f5-4f72-bbb0-ee8a9626aa11",
+            "Decimal",
+            "type",
+            "Class"
+        ],
+        [
+            "s:b01c6709-096e-4867-b54a-ce21fe9465bf",
+            "Decimal",
+            "type",
+            "Datatype"
+        ],
+        [
+            "s:5ef7f1ca-7ffa-4eac-a289-e9a7f7680ca0",
+            "Decimal",
+            "label",
+            "str:Decimal"
+        ],
+        [
+            "s:b76f0c11-6ddc-4044-b83c-49400599a121",
+            "Decimal",
             "subClassOf",
             "Literal"
         ],
