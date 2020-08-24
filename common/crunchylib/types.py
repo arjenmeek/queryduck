@@ -13,6 +13,18 @@ class Filter:
     def __init__(self, op):
         self.op = op
 
+
+class Inverted:
+
+    def __init__(self, value):
+        self.value = value
+
+    def __hash__(self):
+        return hash('INVERTED') ^ hash(self.value)
+        if self.uuid is None:
+            return hash(self.id)
+        return hash(self.uuid)
+
 class Statement:
 
     def __init__(self, uuid_=None, id_=None, triple=None,
@@ -61,40 +73,46 @@ class Statement:
 
 class Blob:
 
-    def __init__(self, serialized=None, sha256=None, id_=None,
-            volume=None, path=None):
+    def __init__(self, serialized=None, sha256=None, id_=None):
         self.id = id_
-        self.volume = volume
-        self.path = path
-        if serialized is not None:
-            if ':' in serialized:
-                enc_sha256, self.volume, enc_path = serialized.split(':')
-                self.path = base64.urlsafe_b64decode(enc_path)
-            else:
-                enc_sha256 = serialized
-        self.sha256 = base64.urlsafe_b64decode(enc_sha256) if sha256 is None else sha256
+        self.sha256 = base64.urlsafe_b64decode(serialized) if sha256 is None else sha256
 
     def encoded_sha256(self):
         r = None if self.sha256 is None else base64.urlsafe_b64encode(self.sha256).decode('utf-8')
         return r
 
     def serialize(self):
-        if self.volume:
-            return "{}:{}:{}".format(
-                self.encoded_sha256(),
-                self.volume,
-                base64.urlsafe_b64encode(self.path).decode('utf-8'))
-        else:
-            return self.encoded_sha256()
+        return self.encoded_sha256()
 
     def __repr__(self):
-        if self.volume:
-            return '<Blob id={} sha256={} volume={}>'.format(self.id, None if self.sha256 is None else self.encoded_sha256(), self.volume)
-        else:
-            return '<Blob id={} sha256={}>'.format(self.id, None if self.sha256 is None else self.encoded_sha256())
+        return '<Blob id={} sha256={}>'.format(self.id, None if self.sha256 is None else self.encoded_sha256())
 
     def __hash__(self):
         return hash(self.sha256)
+
+
+class File:
+
+    def __init__(self, serialized=None, volume=None, path=None):
+        if serialized:
+            ser_opts, self.volume, ser_path = serialized.split(':', 2)
+            opts = ser_opts.split(',')
+            if 'b64' in opts:
+                self.path = base64.urlsafe_b64decode(ser_path)
+            else:
+                self.path = ser_path.encode()
+        else:
+            self.volume = volume
+            self.path = path
+
+    def __repr__(self):
+        return '<File volume="{}" path="{}">'.format(self.volume, self.path.decode())
+
+    def serialize(self):
+        try:
+            return ':{}:{}'.format(self.volume, self.path.decode())
+        except UnicodeDecodeError:
+            return 'b64:{}:{}'.format(self.volume, base64.urlsafe_b64encode(self.path).decode())
 
 
 class Placeholder:
@@ -160,7 +178,12 @@ value_types = {
         'factory': lambda x: None,
         'column_name': 'id', # for "IS NULL" comparison
         'serializer': str,
-    }
+    },
+    'file': {
+        'type': File,
+        'factory': File,
+        'serializer': lambda f: f.serialize(),
+    },
 }
 
 value_types_by_native = {
@@ -174,6 +197,8 @@ value_types_by_native = {
     Blob: 'blob',
     type(None): 'none',
     Filter: 'filter',
+    Inverted: 'inverted',
+    File: 'file',
 }
 
 value_comparison_methods = {
@@ -210,13 +235,7 @@ def process_db_row(db_row, db_columns, db_entities):
         v = Statement(uuid_=uuid_, id_=db_value)
     elif vtype == 'blob':
         sha256 = db_row[db_entities['blob'].c.sha256]
-        if db_entities['volume'].c.reference in db_row:
-            v = Blob(sha256=sha256, id_=db_value,
-                volume=db_row[db_entities['volume'].c.reference],
-                path=db_row[db_entities['file'].c.path]
-            )
-        else:
-            v = Blob(sha256=sha256, id_=db_value)
+        v = Blob(sha256=sha256, id_=db_value)
     else:
         v = db_value
 
@@ -237,6 +256,8 @@ def serialize(native_value):
     vtype = _get_native_vtype(native_value)
     if vtype == 'filter':
         return native_value.op
+    elif vtype == 'inverted':
+        return '~{}'.format(serialize(native_value.value))
     serialized = '{}:{}'.format(vtype, value_types[vtype]['serializer'](native_value))
     return serialized
 

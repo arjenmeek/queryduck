@@ -3,9 +3,10 @@ from .types import Statement, Blob, deserialize
 
 class Result:
 
-    def __init__(self, statements, values):
+    def __init__(self, statements, values, files):
         self.statements = statements
         self.values = values
+        self.files = files
 
     def get(self, uuid_):
         return self.statements[uuid_]

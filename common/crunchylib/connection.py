@@ -74,9 +74,12 @@ class Connection(APIWrapper):
         results = self.get('statements')
         return results
 
-    def query_statements(self, query=None):
-        results = self.post('statements/query',
-            {'query': query if query else {}})
+    def query_statements(self, query=None, target='statement', after=None):
+        results = self.post('statements/query', {
+            'query': query if query else {},
+            'target': target,
+            'after': after,
+        })
         return results
 
     def create_statements(self, statements):

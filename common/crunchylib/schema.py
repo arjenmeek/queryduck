@@ -65,6 +65,13 @@ class Bindings:
     def __getattr__(self, attr):
         return self._content[attr]
 
+    def reverse_exists(self, statement):
+        for k, v in self._content.items():
+            if v == statement:
+                return True
+        else:
+            return False
+
     def reverse(self, statement):
         for k, v in self._content.items():
             if v == statement:
