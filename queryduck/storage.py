@@ -6,10 +6,31 @@ from functools import partial
 from datetime import datetime as dt
 from pathlib import Path
 
+from .types import File
+
 from .utility import (
     CombinedIterator,
     safe_string,
 )
+
+
+class VolumeFileAnalyzer:
+
+    def __init__(self, volume_config):
+        self.volumes = {k: Path(v['path'])
+            for k, v in volume_config.items()}
+
+    def analyze(self, path):
+        if path.is_dir():
+            raise UserError("Cannot process directory: {}".format(real))
+        for volume_reference, volume_path in self.volumes.items():
+            if volume_path in path.parents:
+                subpath = path.relative_to(volume_path)
+                file_ = File(volume=volume_reference, path=bytes(subpath))
+                break
+        else:
+            raise UserError("No volume found for {}".format(path))
+        return file_
 
 
 class VolumeProcessor:
