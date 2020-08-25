@@ -5,7 +5,7 @@ import uuid
 from collections import defaultdict
 from decimal import Decimal
 
-from .exceptions import CVValueError
+from .exceptions import QDValueError
 
 
 class Filter:
@@ -39,7 +39,7 @@ class Statement:
     def __getitem__(self, attr):
         """Make Statement subscriptable"""
         if self.attribute_loader is None:
-            raise CVValueError("Attempted to access Statement attribute but no loader is present")
+            raise QDValueError("Attempted to access Statement attribute but no loader is present")
         return self.attribute_loader(self, attr)
 
     def __hash__(self):
@@ -228,7 +228,7 @@ def process_db_row(db_row, db_columns, db_entities):
         vtype = try_vtype
         break
     else:
-        raise CVValueError("Cannot process DB row {}".format(db_row))
+        raise QDValueError("Cannot process DB row {}".format(db_row))
 
     if vtype == 's':
         uuid_ = db_row[db_entities['s'].c.uuid]
@@ -248,7 +248,7 @@ def _get_native_vtype(native_value):
 def _process_serialized_value(serialized_value):
     vtype, ser_v = serialized_value.split(':', 1)
     if not vtype in value_types:
-        raise CVValueError("Invalid value type: {}".format(vtype))
+        raise QDValueError("Invalid value type: {}".format(vtype))
     v = value_types[vtype]['factory'](ser_v)
     return v, vtype
 
@@ -296,7 +296,7 @@ class Comparison:
         if self.op == 'eq':
             return (hash(self.key) == hash(self.value))
         else:
-            raise CVValueError("Unsupported use of Comparison")
+            raise QDValueError("Unsupported use of Comparison")
 
     def api_value(self):
         return {

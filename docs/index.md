@@ -1,4 +1,4 @@
-# CrunchyVicar: Documentation index
+# QueryDuck: Documentation index
 
 The following documentation is currently available (but mostly in TODO state):
 

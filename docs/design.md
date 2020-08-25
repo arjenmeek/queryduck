@@ -1,6 +1,6 @@
-# CrunchyVicar: Design document - Introduction
+# QueryDuck: Design document - Introduction
 
-This document describes important considerations and design desicions regarding the CrunchyPope project and the specification that is to be established.
+This document describes important considerations and design desicions regarding the QueryDuck project and the specification that is to be established.
 
 It is not intended to be a general, easy-to-read general explanation of the project, which instead can be found [here](explanation.md).
 

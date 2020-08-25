@@ -1,4 +1,4 @@
-# CrunchyVicar: Proof of Concept 1
+# QueryDuck: Proof of Concept 1
 
 This document describes requirements and proposed functionality for a limited Proof of Concept (PoC) implementation.
 
@@ -54,7 +54,7 @@ Multiple Statements can be retrieved by performing a `GET` request to `/statemen
 
 ## General structure
 
-The server application is started through a local Python 3 script called `serve.py`. This imports the `crunchyserver` module where the rest of the code lives, and starts the WSGI server process using the configuration specified in `config.yml`.
+The server application is started through a local Python 3 script called `serve.py`. This imports the `qdserver` module where the rest of the code lives, and starts the WSGI server process using the configuration specified in `config.yml`.
 
 From here, the Pyramid `Configurator` class takes over the general management of the application's components, called on by the `main` function in `__init__.py`. The most important components and files are:
 

@@ -1,7 +1,3 @@
 __pycache__
 .*.swp
 .mypy_cache
-cliclient/config.yml
-drafts
-ignored
-server/config.yml

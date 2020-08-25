@@ -1,6 +1,6 @@
 import uuid
 
-from .exceptions import CVSchemaError
+from .exceptions import QDSchemaError
 from .types import serialize
 
 class Schema:
@@ -10,7 +10,7 @@ class Schema:
 
     def __getitem__(self, attr):
         if not attr in self._content:
-            raise CVSchemaError(
+            raise QDSchemaError(
                 "Key is not part of this Schema: {}".format(attr))
         return self._content[attr]
 
@@ -58,7 +58,7 @@ class Bindings:
 
     def __getitem__(self, attr):
         if not attr in self._content:
-            raise CVSchemaError(
+            raise QDSchemaError(
                 "Key is not part of these Bindings: {}".format(attr))
         return self._content[attr]
 

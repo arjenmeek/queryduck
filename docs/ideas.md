@@ -1,4 +1,4 @@
-# CrunchyVicar: Assorted ideas and considerations
+# QueryDuck: Assorted ideas and considerations
 
 # Data modeling
 

@@ -1,4 +1,4 @@
-# The CrunchyVicar Project
+# The QueryDuck Project
 
 ## Project description
 

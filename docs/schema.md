@@ -1,6 +1,6 @@
-# CrunchyVicar: Schema specifications
+# QueryDuck: Schema specifications
 
-Although the CrunchyVicar project is primarily centered around the specifications of the Statement and how to store them, in practice almost all potential use cases involve establishing a higher-level standard defining the structure of Statements and the relationships between them.
+Although the QueryDuck project is primarily centered around the specifications of the Statement and how to store them, in practice almost all potential use cases involve establishing a higher-level standard defining the structure of Statements and the relationships between them.
 
 In order to create more realistic Proof of Concept implementations, and maybe also provide an initial direction for eventual real-world applications, this document attempts to specify a general-purpose data schema structure to be used with Statements. It will be referred to in a generalized way as the Schema.
 
@@ -10,9 +10,9 @@ In order to create more realistic Proof of Concept implementations, and maybe al
 
 At the most basic level, semantically structured information amounts to making statements about *things*, where a *thing* is anything that a statement can be made about. The generic term *Resource* will be used for any such *thing* from here on.
 
-The CrunchyVicar specification, however, only provides for Statements, not Resources. In order to still be able to make practically useful Statements, an important equivalence is introduced: a Statement that has itself as its Subject, and with its Predicate and Object indicating that its Subject is a Resource, the Statement itself is considered to represent the Resource.
+The QueryDuck specification, however, only provides for Statements, not Resources. In order to still be able to make practically useful Statements, an important equivalence is introduced: a Statement that has itself as its Subject, and with its Predicate and Object indicating that its Subject is a Resource, the Statement itself is considered to represent the Resource.
 
-This approach is chosen because the lack of an explicit Resource type in the CrunchyVicar specification means Statements about Resources can be made in the same manner as Statements about other Statements, greatly increasing flexibility.
+This approach is chosen because the lack of an explicit Resource type in the QueryDuck specification means Statements about Resources can be made in the same manner as Statements about other Statements, greatly increasing flexibility.
 
 
 ## Example
