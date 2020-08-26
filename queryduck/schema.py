@@ -56,9 +56,12 @@ class Bindings:
     def __init__(self, content):
         self._content = content
 
+    def __contains__(self, attr):
+        return attr in self._content
+
     def __getitem__(self, attr):
         if not attr in self._content:
-            raise QDSchemaError(
+            raise KeyError(
                 "Key is not part of these Bindings: {}".format(attr))
         return self._content[attr]
 
