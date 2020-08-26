@@ -92,6 +92,7 @@ class StatementRepository:
                 blob = self.unique_deserialize(k)
                 files[blob] = [self.unique_deserialize(f) for f in v]
         result = Result(statements=statements, values=values, files=files)
+        result.index()
         return result
 
     def create(self, rows):

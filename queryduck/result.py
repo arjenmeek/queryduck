@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from .types import Statement, Blob, deserialize
 
 
@@ -7,11 +9,28 @@ class Result:
         self.statements = statements
         self.values = values
         self.files = files
+        self.indexed = None
+
+    def index(self):
+        self.indexed = defaultdict(list)
+        for st in self.statements.values():
+            for triple in [
+                (st.triple[0], st.triple[1], st.triple[2]),
+                (None,         st.triple[1], st.triple[2]),
+                (st.triple[0], None,         st.triple[2]),
+                (st.triple[0], st.triple[1], None,       ),
+                (None,         None,         st.triple[2]),
+                (None,         st.triple[1], None,       ),
+                (st.triple[0], None,         None,       ),
+            ]:
+                self.indexed[triple].append(st)
 
     def get(self, uuid_):
         return self.statements[uuid_]
 
     def find(self, s=None, p=None, o=None):
+        if self.indexed:
+            return self.indexed[(s, p, o)]
         statements = []
         for st in self.statements.values():
             if st.triple is not None and \
@@ -22,6 +41,9 @@ class Result:
         return statements
 
     def first(self, s=None, p=None, o=None):
+        if self.indexed:
+            k = (s, p, o)
+            return self.indexed[k][0] if k in self.indexed else None
         statements = []
         for st in self.statements.values():
             if st.triple is not None and \
