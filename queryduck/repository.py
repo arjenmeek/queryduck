@@ -42,7 +42,7 @@ class StatementRepository:
         bindings = Bindings(bindings_content)
         return bindings
 
-    def query(self, query=None, target='statement', after=None):
+    def query(self, query, target='statement', after=None):
         query = transform_doc(query, serialize)
         args = {
             'query': query,
