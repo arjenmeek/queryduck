@@ -1,12 +1,20 @@
 from .types import serialize, Inverted, Statement
 
 def parse_identifier(repo, bindings, identifier):
+    invert = False
+    if identifier.startswith('~'):
+        invert = True
+        identifier = identifier[1:]
+
     if ':' in identifier:
         v = repo.unique_deserialize(identifier)
     elif identifier in bindings:
         v = bindings[identifier]
     else:
         v = identifier
+
+    if invert:
+        v = Inverted(v)
     return v
 
 def make_identifier(result, bindings, value):
