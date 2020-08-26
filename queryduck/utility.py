@@ -1,3 +1,6 @@
+from .types import serialize, Inverted
+from .serialization import make_identifier
+
 def transform_doc(doc, transform):
     """Transform any scalar key or value in nested document structure.
 
@@ -34,6 +37,44 @@ def transform_doc(doc, transform):
             out_stack.append(cur)
             cur = val
     return new
+
+def value_to_doc(result, bindings, value):
+    r = value
+    statements = result.find(s=r)
+    doc = {
+        '_s': serialize(r),
+        '_r': make_identifier(result, bindings, r),
+    }
+    for s in statements:
+        if not s.triple[1] in doc:
+            doc[s.triple[1]] = []
+        if s.triple[0] != s:
+            meta = result.find(s=s)
+        else:
+            meta = []
+        if meta:
+            val = {'+': s.triple[2]}
+            for m in meta:
+                key = make_identifier(result, bindings, m.triple[1])
+                if not key in val:
+                    val[key] = []
+                val[key].append(make_identifier(result, bindings, m.triple[2]))
+            val = {k: v if k == '+' or len(v) != 1 else v[0] for k, v in val.items()}
+        else:
+            val = s.triple[2]
+        doc[s.triple[1]].append(val)
+    inverse_statements = result.find(o=r)
+    for s in inverse_statements:
+        inv = Inverted(s.triple[1])
+        if not inv in doc:
+            doc[inv] = []
+        doc[inv].append(s.triple[0])
+    doc = {k: v[0] if type(v) == list and len(v) == 1 else v
+        for k, v in doc.items()}
+    def my_make_identifier(v):
+        return make_identifier(result, bindings, v)
+    doc = transform_doc(doc, my_make_identifier)
+    return doc
 
 def safe_bytes(input_bytes):
     """Replace surrogates in UTF-8 bytes"""
