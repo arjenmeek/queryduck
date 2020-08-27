@@ -1,6 +1,6 @@
 import weakref
 
-from .schema import Bindings
+from .schema import Bindings, SchemaProcessor
 from .types import Statement, Blob, serialize, deserialize
 from .result import Result
 from .utility import transform_doc
@@ -41,6 +41,12 @@ class StatementRepository:
                 bindings_content[k] = self.unique_deserialize(v)
         bindings = Bindings(bindings_content)
         return bindings
+
+    def import_schema(self, input_schema, bindings):
+        schema_processor = SchemaProcessor()
+        statements = schema_processor.statements_from_schema(bindings, input_schema)
+        self.raw_create(statements)
+
 
     def query(self, query, target='statement', after=None):
         query = transform_doc(query, serialize)
