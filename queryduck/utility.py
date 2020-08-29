@@ -102,12 +102,9 @@ class CombinedIterator:
         if self.left is not None:
             try:
                 self.cur_left = next(self.left)
-                print("thisisnext")
             except StopIteration:
                 self.left = None
                 self.cur_left = None
-                print("thisisexception")
-        print("NEXT", str(self.cur_left).encode(errors='ignore'), type(self.cur_left))
 
     def _advance_right(self):
         if self.right is not None:
@@ -120,8 +117,8 @@ class CombinedIterator:
     def __next__(self):
         if self.left is None and self.right is None:
             raise StopIteration
-        elif (self.right is None or
-                self.left_key(self.cur_left) < self.right_key(self.cur_right)):
+        elif (self.right is None or (self.left is not None and
+                self.left_key(self.cur_left) < self.right_key(self.cur_right))):
             retval = (self.cur_left, None)
             self._advance_left()
         elif (self.left is None or
