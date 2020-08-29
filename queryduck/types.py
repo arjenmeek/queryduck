@@ -8,23 +8,6 @@ from decimal import Decimal
 from .exceptions import QDValueError
 
 
-class Filter:
-
-    def __init__(self, op):
-        self.op = op
-
-
-class Inverted:
-
-    def __init__(self, value):
-        self.value = value
-
-    def __hash__(self):
-        return hash('INVERTED') ^ hash(self.value)
-        if self.uuid is None:
-            return hash(self.id)
-        return hash(self.uuid)
-
 class Statement:
 
     def __init__(self, uuid_=None, id_=None, triple=None,
@@ -66,9 +49,6 @@ class Statement:
         if self.triple:
             parts.append('complete')
         return '<Statement {}>'.format(' '.join(parts))
-
-    def __eq__(self, other):
-        return Comparison(self, 'eq', other)
 
 
 class Blob:
@@ -196,8 +176,6 @@ value_types_by_native = {
     Statement: 's',
     Blob: 'blob',
     type(None): 'none',
-    Filter: 'filter',
-    Inverted: 'inverted',
     File: 'file',
 }
 
@@ -217,90 +195,3 @@ value_comparison_methods = {
 list_comparison_methods = {
     'in': 'in_',
 }
-
-
-def process_db_row(db_row, db_columns, db_entities):
-    for try_vtype, options in value_types.items():
-        column = db_columns[options['column_name']]
-        db_value = db_row[column]
-        if db_value is None or try_vtype == 'none':
-            continue
-        vtype = try_vtype
-        break
-    else:
-        raise QDValueError("Cannot process DB row {}".format(db_row))
-
-    if vtype == 's':
-        uuid_ = db_row[db_entities['s'].c.uuid]
-        v = Statement(uuid_=uuid_, id_=db_value)
-    elif vtype == 'blob':
-        sha256 = db_row[db_entities['blob'].c.sha256]
-        v = Blob(sha256=sha256, id_=db_value)
-    else:
-        v = db_value
-
-    return v, vtype
-
-def _get_native_vtype(native_value):
-    vtype = value_types_by_native[type(native_value)]
-    return vtype
-
-def _process_serialized_value(serialized_value):
-    vtype, ser_v = serialized_value.split(':', 1)
-    if not vtype in value_types:
-        raise QDValueError("Invalid value type: {}".format(vtype))
-    v = value_types[vtype]['factory'](ser_v)
-    return v, vtype
-
-def serialize(native_value):
-    vtype = _get_native_vtype(native_value)
-    if vtype == 'filter':
-        return native_value.op
-    elif vtype == 'inverted':
-        return '~{}'.format(serialize(native_value.value))
-    serialized = '{}:{}'.format(vtype, value_types[vtype]['serializer'](native_value))
-    return serialized
-
-def deserialize(serialized_value):
-    v, vtype = _process_serialized_value(serialized_value)
-    return v
-
-def prepare_for_db(native_value):
-    vtype = _get_native_vtype(native_value)
-    if vtype in ('s', 'blob'):
-        value = native_value.id
-    else:
-        value = native_value
-    return value, value_types[vtype]['column_name']
-
-def column_compare(value, op, columns):
-    vtype = _get_native_vtype(value[0] if type(value) == list else value)
-    column = columns[value_types[vtype]['column_name']]
-    op_method = value_comparison_methods[op]
-    if type(value) == list:
-        db_value = [v.id if vtype in ('s', 'blob') else v for v in value]
-    else:
-        db_value = value.id if vtype in ('s', 'blob') else value
-    return getattr(column, op_method)(db_value)
-
-class Comparison:
-
-    def __init__(self, key, op, value):
-        self.key = key
-        self.op = op
-        self.value = value
-
-    def __bool__(self):
-        """Ensure Comparison makes sense when used directly in boolean context
-        (as opposed to using it to specify filters)"""
-        if self.op == 'eq':
-            return (hash(self.key) == hash(self.value))
-        else:
-            raise QDValueError("Unsupported use of Comparison")
-
-    def api_value(self):
-        return {
-            'key': serialize(self.key),
-            'op': self.op,
-            'value': serialize(self.value),
-        }
