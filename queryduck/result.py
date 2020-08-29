@@ -1,6 +1,7 @@
 from collections import defaultdict
 
-from .types import Statement, Blob, deserialize
+from .types import Statement, Blob
+from .serialization import deserialize
 
 
 class Result:

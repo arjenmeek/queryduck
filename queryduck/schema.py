@@ -1,7 +1,7 @@
 import uuid
 
 from .exceptions import QDSchemaError
-from .types import serialize
+from .serialization import serialize
 
 class Schema:
 

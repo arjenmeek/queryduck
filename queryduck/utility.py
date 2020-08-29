@@ -1,5 +1,5 @@
-from .types import serialize, Inverted
-from .serialization import make_identifier
+from .query import MatchSubject
+from .serialization import serialize, make_identifier
 
 def transform_doc(doc, transform):
     """Transform any scalar key or value in nested document structure.
@@ -65,7 +65,7 @@ def value_to_doc(result, bindings, value):
         doc[s.triple[1]].append(val)
     inverse_statements = result.find(o=r)
     for s in inverse_statements:
-        inv = Inverted(s.triple[1])
+        inv = MatchSubject(s.triple[1])
         if not inv in doc:
             doc[inv] = []
         doc[inv].append(s.triple[0])

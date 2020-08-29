@@ -1,8 +1,9 @@
 import weakref
 
 from .schema import Bindings, SchemaProcessor
-from .types import Statement, Blob, serialize, deserialize
+from .types import Statement, Blob
 from .result import Result
+from .serialization import serialize, deserialize
 from .utility import transform_doc
 
 
