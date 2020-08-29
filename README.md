@@ -37,4 +37,4 @@ QueryDuck: It performs queries (among other things), and I like ducks. Simple as
 
 All works in this repository are © Copyright 2020 Arjen Meek.
 
-See `LICENSE` for further license and warranty information.
+See [LICENSE](LICENSE) for further license and warranty information.
