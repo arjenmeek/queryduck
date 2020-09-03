@@ -76,9 +76,9 @@ class StatementRepository:
         result = self._result_from_response(response)
         return result
 
-    def _result_from_response(self, response):
+    def _statement_result_from_response(self, ser_statements):
         statements = {}
-        for k, v in response['statements'].items():
+        for k, v in ser_statements.items():
             statement = self.unique_deserialize(k)
             if statement.triple is None:
                 statement.triple = (
@@ -87,6 +87,10 @@ class StatementRepository:
                     self.unique_deserialize(v[2]),
                 )
             statements[statement.uuid] = statement
+        return statements
+
+    def _result_from_response(self, response):
+        statements = self._statement_result_from_response(response['statements'])
 
         values = []
         for ref in response['references']:
@@ -113,10 +117,13 @@ class StatementRepository:
 
     def submit(self, transaction):
         if len(transaction.statements) == 0:
-            return None
+            return Result({}, [], {})
         ser_statements = []
         for s in transaction.statements:
             ser_statements.append([None] + [v.id
                 if type(v) == Statement and v.uuid is None
                 else serialize(v) for v in s.triple])
-        return self.connection.submit_transaction(ser_statements)
+        ser_result = self.connection.submit_transaction(ser_statements)
+        statements = self._statement_result_from_response(ser_result['statements'])
+        result = Result(statements=statements, values=[], files={})
+        return result
