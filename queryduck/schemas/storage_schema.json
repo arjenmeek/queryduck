@@ -4,6 +4,7 @@
         "main"
     ],
     "bindings": {
+        "fileType": "s:dd0b0d19-ffe9-4288-abda-82474207a31c",
         "ComputerFile": "s:182e2c0f-2eb4-4960-b986-788e3e38c80e",
         "VideoFile": "s:6d43f8f9-0198-4c31-97aa-424c2e450c7d",
         "ImageFile": "s:04be15dc-9d27-4654-a750-14049c4c3e82",
@@ -19,6 +20,12 @@
         "numberOfFrames": "s:6b3f7e9c-5971-40de-a24b-63b3ff37ebb0"
     },
     "statements": [
+        [
+            "fileType",
+            "fileType",
+            "type",
+            "Resource"
+        ],
         [
             "ComputerFile",
             "ComputerFile",
@@ -162,6 +169,12 @@
             "ArchiveFile",
             "subClassOf",
             "ComputerFile"
+        ],
+        [
+            "CompressedFile",
+            "CompressedFile",
+            "type",
+            "Resource"
         ],
         [
             "fileContent",
