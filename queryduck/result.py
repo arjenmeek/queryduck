@@ -6,10 +6,11 @@ from .serialization import deserialize
 
 class Result:
 
-    def __init__(self, statements, values, files):
+    def __init__(self, statements, values, files, more):
         self.statements = statements
         self.values = values
         self.files = files
+        self.more = more
         self.indexed = None
 
     def index(self):

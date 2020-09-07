@@ -102,7 +102,7 @@ class StatementRepository:
             for k, v in response['files'].items():
                 blob = self.unique_deserialize(k)
                 files[blob] = [self.unique_deserialize(f) for f in v]
-        result = Result(statements=statements, values=values, files=files)
+        result = Result(statements=statements, values=values, files=files, more=response['more'])
         result.index()
         return result
 
