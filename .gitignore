@@ -1,3 +1,6 @@
 __pycache__
 .*.swp
 .mypy_cache
+QueryDuck.egg-info
+build
+dist
