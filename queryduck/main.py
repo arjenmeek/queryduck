@@ -7,6 +7,7 @@ from .connection import Connection
 from .constants import DEFAULT_SCHEMA_FILES
 from .repository import StatementRepository
 
+
 class QueryDuck:
 
     def __init__(self, url, username, password, extra_schema_files=None):
@@ -31,7 +32,8 @@ class QueryDuck:
                 if '/' in filename:
                     filepath = expanduser(filename)
                 else:
-                    filepath = pjoin(self.main_dir, 'schemas', filename)
+                    filepath = pjoin(os.path.dirname(__file__), 'schemas',
+                        filename)
 
                 with open(filepath, 'r') as f:
                     schemas.append(json.load(f))

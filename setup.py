@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="QueryDuck",
-    version="0.5.1.1",
+    version="0.5.1.2",
     author="Arjen Meek",
     author_email="arjen@meeknet.nl",
     description="The QueryDuck project",
