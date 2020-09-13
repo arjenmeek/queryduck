@@ -38,43 +38,58 @@ def transform_doc(doc, transform):
             cur = val
     return new
 
-def value_to_doc(result, bindings, value):
-    r = value
-    statements = result.find(s=r)
-    doc = {
-        '_s': serialize(r),
-        '_r': make_identifier(result, bindings, r),
-    }
-    for s in statements:
-        if not s.triple[1] in doc:
-            doc[s.triple[1]] = []
-        if s.triple[0] != s:
-            meta = result.find(s=s)
-        else:
-            meta = []
-        if meta:
-            val = {'+': s.triple[2]}
-            for m in meta:
-                key = make_identifier(result, bindings, m.triple[1])
-                if not key in val:
-                    val[key] = []
-                val[key].append(make_identifier(result, bindings, m.triple[2]))
-            val = {k: v if k == '+' or len(v) != 1 else v[0] for k, v in val.items()}
-        else:
-            val = s.triple[2]
-        doc[s.triple[1]].append(val)
-    inverse_statements = result.find(o=r)
-    for s in inverse_statements:
-        inv = MatchSubject(s.triple[1])
-        if not inv in doc:
-            doc[inv] = []
-        doc[inv].append(s.triple[0])
-    doc = {k: v[0] if type(v) == list and len(v) == 1 else v
-        for k, v in doc.items()}
-    def my_make_identifier(v):
-        return make_identifier(result, bindings, v)
-    doc = transform_doc(doc, my_make_identifier)
-    return doc
+
+class DocProcessor:
+
+    def __init__(self, coll, bindings):
+        self.coll = coll
+        self.bindings = bindings
+
+    def value_to_doc(self, value):
+        b = self.bindings
+        main_parent = {'main': {}}
+        stack = [
+            (value, main_parent, 'main', 0)
+        ]
+        i = 0
+        while stack:
+            v, parent, key, depth = stack.pop()
+            #print("POPPED", v, parent, key)
+            object_statements = [s for s in self.coll.find(s=v) if s != s.triple[2]]
+            if not (b.reverse_exists(v) and depth >= 1) and type(v).__name__ == 'Statement' and len(object_statements):
+                sub = {}
+                if b.reverse_exists(v):
+                    sub["="] = '{} ({})'.format(b.reverse(v), serialize(v))
+                else:
+                    sub["="] = serialize(v)
+
+                label = self.coll.object_for(v, b.label)
+                types = self.coll.objects_for(v, b.type)
+                btypes = [b.reverse(t) for t in types if b.reverse_exists(t)]
+                if label and len(btypes):
+                    sub["/"] = '/'.join([''] + btypes + [label])
+
+                for s in object_statements:
+                    if s.triple[2] == s:
+                        continue
+                    subkey = '{}'.format(b.reverse(s.triple[1]))
+                    stack.append((s.triple[2], sub, subkey, depth + 1))
+
+                if key in parent and depth >= 1:
+                    if type(parent[key]) != list:
+                        parent[key] = [parent[key]]
+                    parent[key].append(sub)
+                else:
+                    parent[key] = sub
+            else:
+                val = b.reverse(v) if b.reverse_exists(v) else serialize(v)
+                if key in parent:
+                    if type(parent[key]) != list:
+                        parent[key] = [parent[key]]
+                    parent[key].append(val)
+                else:
+                    parent[key] = val
+        return main_parent['main']
 
 def safe_bytes(input_bytes):
     """Replace surrogates in UTF-8 bytes"""
