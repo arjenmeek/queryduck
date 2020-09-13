@@ -4,14 +4,31 @@ from .types import Statement, Blob
 from .serialization import deserialize
 
 
-class Result:
+class Collection:
 
-    def __init__(self, statements, values, files, more):
-        self.statements = statements
-        self.values = values
-        self.files = files
-        self.more = more
+    def __init__(self, statements=None, files=None):
+        self.statements = {}
+        self.files = {}
         self.indexed = None
+        if statements is not None:
+            self.add_statements(statements)
+        if files is not None:
+            self.add_files(files)
+
+    def add_statements(self, statements):
+        if len(self.statements) == 0:
+            self.statements = statements
+        else:
+            for k, v in statements.items():
+                self.statements[k] = v
+        self.index()
+
+    def add_files(self, files):
+        if len(self.files) == 0:
+            self.files = files
+        else:
+            for k, v in files.items():
+                self.files[k] = v
 
     def index(self):
         self.indexed = defaultdict(list)
@@ -68,3 +85,10 @@ class Result:
     def subject_for(self, object_, predicate):
         st = self.first(p=predicate, o=object_)
         return None if st is None else st.triple[0]
+
+
+class Result:
+
+    def __init__(self, values, more):
+        self.values = values
+        self.more = more

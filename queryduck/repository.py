@@ -2,7 +2,7 @@ import weakref
 
 from .schema import Bindings, SchemaProcessor
 from .types import Statement, Blob
-from .result import Result
+from .result import Collection, Result
 from .serialization import serialize, deserialize
 from .utility import transform_doc
 
@@ -102,9 +102,10 @@ class StatementRepository:
             for k, v in response['files'].items():
                 blob = self.unique_deserialize(k)
                 files[blob] = [self.unique_deserialize(f) for f in v]
-        result = Result(statements=statements, values=values, files=files, more=response['more'])
-        result.index()
-        return result
+        result = Result(values=values, more=response['more'])
+        coll = Collection(statements=statements, files=files)
+        coll.index()
+        return result, coll
 
     def create(self, rows):
         ser_statements = []
@@ -117,7 +118,7 @@ class StatementRepository:
 
     def submit(self, transaction):
         if len(transaction.statements) == 0:
-            return Result({}, [], {})
+            return Collection()
         ser_statements = []
         for s in transaction.statements:
             ser_statements.append([None] + [v.id
@@ -125,5 +126,5 @@ class StatementRepository:
                 else serialize(v) for v in s.triple])
         ser_result = self.connection.submit_transaction(ser_statements)
         statements = self._statement_result_from_response(ser_result['statements'])
-        result = Result(statements=statements, values=[], files={})
-        return result
+        coll = Collection(statements=statements)
+        return coll
