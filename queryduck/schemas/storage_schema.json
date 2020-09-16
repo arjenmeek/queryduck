@@ -10,6 +10,8 @@
         "ImageFile": "s:04be15dc-9d27-4654-a750-14049c4c3e82",
         "AudioFile": "s:fe9f2ef5-1065-49c1-848f-1fa0df5198c6",
         "DocumentFile": "s:a3069f1e-885a-4aa4-acfa-f1032a29b1de",
+        "ProgramFile": "s:f3185f4e-326d-458c-9b57-235bbecd6791",
+        "MetadataFile": "s:86f16491-439c-4320-ae6d-01d1e75a4245",
         "ArchiveFile": "s:64aba9f6-b97a-45be-9418-69fc5ca1b594",
         "CompressedFile": "s:1dfc4a62-f593-4e33-aebc-6623826847fe",
         "fileContent": "s:dfae61ef-8382-42eb-9a9a-cc3975a328f2",
@@ -145,6 +147,18 @@
             "DocumentFile",
             "subClassOf",
             "ComputerFile"
+        ],
+        [
+            "ProgramFile",
+            "ProgramFile",
+            "type",
+            "Resource"
+        ],
+        [
+            "MetadataFile",
+            "MetadataFile",
+            "type",
+            "Resource"
         ],
         [
             "ArchiveFile",
