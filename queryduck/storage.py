@@ -17,7 +17,7 @@ from .utility import (
 class VolumeFileAnalyzer:
 
     def __init__(self, volume_config):
-        self.volumes = {k: Path(v['path'])
+        self.volumes = {k: Path(v["path"])
             for k, v in volume_config.items()}
 
     def analyze(self, path):
@@ -46,7 +46,7 @@ class VolumeProcessor:
         afi = ApiFileIterator(self.conn, self.reference)
         ci = CombinedIterator(tfi, afi,
             lambda x: str(x.relative_to(tfi.root)),
-            lambda x: x['path'])
+            lambda x: x["path"])
         with FileUpdater(self.conn, self.reference) as updater:
             for local, remote in ci:
                 k, v = self._update_file_status(local, remote)
@@ -55,34 +55,34 @@ class VolumeProcessor:
 
     def _update_file_status(self, local, remote):
         if local is None:
-            print("DELETED", safe_string(remote['path']))
-            return remote['path'], None
+            print("DELETED", safe_string(remote["path"]))
+            return remote["path"], None
         elif (remote is None
-                or local.stat().st_size != remote['size']
+                or local.stat().st_size != remote["size"]
                 or dt.fromtimestamp(local.stat().st_mtime)
-                    != dt.fromisoformat(remote['mtime'])
+                    != dt.fromisoformat(remote["mtime"])
                 ):
             relpath = str(local.relative_to(self.root))
             print("NEW" if remote is None else "CHANGED",
-                relpath.encode('utf-8', errors='replace'))
+                relpath.encode("utf-8", errors="replace"))
             return relpath, self._process_file(local)
         else:
             return None, remote
 
     def _get_file_sha256(self, path):
         s = hashlib.sha256()
-        with path.open('rb') as f:
-            for chunk in iter(partial(f.read, 256 * 1024), b''):
+        with path.open("rb") as f:
+            for chunk in iter(partial(f.read, 256 * 1024), b""):
                 s.update(chunk)
         return s.digest()
 
     def _process_file(self, path):
         try:
             file_info = {
-                'mtime': dt.fromtimestamp(path.stat().st_mtime).isoformat(),
-                'size': path.stat().st_size,
-                'lastverify': dt.now().isoformat(),
-                'sha256': urlsafe_b64encode(self._get_file_sha256(path)).decode('utf-8'),
+                "mtime": dt.fromtimestamp(path.stat().st_mtime).isoformat(),
+                "size": path.stat().st_size,
+                "lastverify": dt.now().isoformat(),
+                "sha256": urlsafe_b64encode(self._get_file_sha256(path)).decode("utf-8"),
             }
         except PermissionError:
             print("Permission error, ignoring:", path)
@@ -110,8 +110,8 @@ class FileUpdater(object):
         self.check()
 
     def check(self):
-        total_size = sum([v['size'] for v in self.batch.values()
-            if v is not None and 'size' in v])
+        total_size = sum([v["size"] for v in self.batch.values()
+            if v is not None and "size" in v])
         if len(self.batch) >= self.num_treshold or total_size >= self.size_treshold:
             self.flush()
 
@@ -136,7 +136,7 @@ class TreeFileIterator:
     @staticmethod
     def sortkey(entry):
         if entry.is_dir():
-            return bytes(entry) + b'/'
+            return bytes(entry) + b"/"
         else:
             return bytes(entry)
 
@@ -181,21 +181,21 @@ class ApiFileIterator:
 
     def _load_next(self):
         if self.results is None:
-            params = {'limit': self.preferred_limit}
+            params = {"limit": self.preferred_limit}
             if self.without_statements:
-                params['without_statements'] = 1
-            response = self.api.get('volumes/{}/files'.format(self.reference),
+                params["without_statements"] = 1
+            response = self.api.get("volumes/{}/files".format(self.reference),
                 params=params)
         else:
             after = urlsafe_b64encode(os.fsencode(
-                self.results[self.limit-1]['path'])).decode()
-            params = {'after': after, 'limit': self.preferred_limit}
+                self.results[self.limit-1]["path"])).decode()
+            params = {"after": after, "limit": self.preferred_limit}
             if self.without_statements:
-                params['without_statements'] = 1
-            response = self.api.get('volumes/{}/files'.format(self.reference),
+                params["without_statements"] = 1
+            response = self.api.get("volumes/{}/files".format(self.reference),
                 params=params)
-        self.results = response['results']
-        self.limit = response['limit']
+        self.results = response["results"]
+        self.limit = response["limit"]
         self.idx = 0
 
     def __next__(self):

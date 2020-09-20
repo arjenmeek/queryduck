@@ -8,66 +8,66 @@ class QueryElement:
         return hash(self.__class__) ^ hash(self.value)
 
     def __repr__(self):
-        return '<{}({})>'.format(self.__class__.__name__, self.value)
+        return "<{}({})>".format(self.__class__.__name__, self.value)
 
 
 class MatchObject(QueryElement):
 
-    prefix = '='
+    prefix = "="
 
     @staticmethod
     def get_join_columns(v, t):
-        return ('subject_id', 'object_statement_id')
+        return ("subject_id", "object_statement_id")
 
 
 class MatchSubject(QueryElement):
 
-    prefix = '~'
+    prefix = "~"
 
     @staticmethod
     def get_join_columns(v, t):
-        if v is None or type(v).__name__ == 'Blob' or t.name == 'blob':
-            lhs_column = 'object_blob_id'
+        if v is None or type(v).__name__ == "Blob" or t.name == "blob":
+            lhs_column = "object_blob_id"
         else:
-            lhs_column = 'object_statement_id'
-        return (lhs_column, 'subject_id')
+            lhs_column = "object_statement_id"
+        return (lhs_column, "subject_id")
 
 
 class MetaObject(QueryElement):
 
-    prefix = '@'
+    prefix = "@"
 
     @staticmethod
     def get_join_columns(v, t):
-        return ('subject_id', 'object_statement_id')
+        return ("subject_id", "object_statement_id")
 
 
 class MetaSubject(QueryElement):
 
-    prefix = '&'
+    prefix = "&"
 
 
 class FetchObject(QueryElement):
 
-    prefix = '+'
+    prefix = "+"
 
 
 class FetchSubject(QueryElement):
 
-    prefix = '-'
+    prefix = "-"
 
 
 class Comparison(QueryElement):
 
-    prefix = '_'
+    prefix = "_"
 
 
 query_prefixes = {
-    '=': MatchObject,
-    '~': MatchSubject,
-    '@': MetaObject,
-    '&': MetaSubject,
-    '_': Comparison,
-    '+': FetchObject,
-    '-': FetchSubject,
+    "=": MatchObject,
+    "~": MatchSubject,
+    "@": MetaObject,
+    "&": MetaSubject,
+    "_": Comparison,
+    "+": FetchObject,
+    "-": FetchSubject,
 }

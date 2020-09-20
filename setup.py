@@ -12,12 +12,12 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/arjenmeek/queryduck",
-    packages=['queryduck'],
+    packages=["queryduck"],
     package_data={
         "queryduck": ["schemas/*.json"],
     },
     classifiers=[
         "Programming Language :: Python :: 3",
     ],
-    python_requires='>=3.7',
+    python_requires=">=3.7",
 )

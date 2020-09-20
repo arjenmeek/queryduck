@@ -29,13 +29,13 @@ class QueryDuck:
         if self.bindings is None:
             schemas = []
             for filename in DEFAULT_SCHEMA_FILES + self.extra_schema_files:
-                if '/' in filename:
+                if "/" in filename:
                     filepath = expanduser(filename)
                 else:
-                    filepath = pjoin(os.path.dirname(__file__), 'schemas',
+                    filepath = pjoin(os.path.dirname(__file__), "schemas",
                         filename)
 
-                with open(filepath, 'r') as f:
+                with open(filepath, "r") as f:
                     schemas.append(json.load(f))
 
             repo = self.get_repo()

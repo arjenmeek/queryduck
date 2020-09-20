@@ -16,7 +16,7 @@ class StatementRepository:
 
     def export_statements(self):
         r = self.connection.get_statements()
-        return r['statements']
+        return r["statements"]
 
     def import_statements(self, ser_statements):
         self.connection.create_statements(ser_statements)
@@ -38,7 +38,7 @@ class StatementRepository:
     def bindings_from_schemas(self, schemas):
         bindings_content = {}
         for schema in schemas:
-            for k, v in schema['bindings'].items():
+            for k, v in schema["bindings"].items():
                 bindings_content[k] = self.unique_deserialize(v)
         bindings = Bindings(bindings_content)
         return bindings
@@ -49,28 +49,28 @@ class StatementRepository:
         self.raw_create(statements)
 
 
-    def query(self, query, target='statement', after=None):
+    def query(self, query, target="statement", after=None):
         query = transform_doc(query, serialize)
         args = {
-            'query': query,
-            'target': target,
+            "query": query,
+            "target": target,
         }
         if after is not None:
-            args['after'] = serialize(after)
+            args["after"] = serialize(after)
         response = self.connection.query_statements(**args)
         result = self._result_from_response(response)
         return result
 
-    def legacy_query(self, query=None, target='statement', after=None):
+    def legacy_query(self, query=None, target="statement", after=None):
         filters = [c.api_value() for c in comparisons]
         query = {}
         for f in filters:
-            if not f['key'] in query:
-                query[f['key']] = {}
-            query[f['key']]['_{}_'.format(f['op'])] = f['value']
+            if not f["key"] in query:
+                query[f["key"]] = {}
+            query[f["key"]]["_{}_".format(f["op"])] = f["value"]
 
-        query = {k: v['_eq_'] if type(v) == dict and len(v) == 1
-            and '_eq_' in v else v for k, v in query.items()}
+        query = {k: v["_eq_"] if type(v) == dict and len(v) == 1
+            and "_eq_" in v else v for k, v in query.items()}
 
         response = self.connection.query_statements(query)
         result = self._result_from_response(response)
@@ -90,19 +90,19 @@ class StatementRepository:
         return statements
 
     def _result_from_response(self, response):
-        statements = self._statement_result_from_response(response['statements'])
+        statements = self._statement_result_from_response(response["statements"])
 
         values = []
-        for ref in response['references']:
+        for ref in response["references"]:
             value = self.unique_deserialize(ref)
             values.append(value)
 
         files = {}
-        if 'files' in response:
-            for k, v in response['files'].items():
+        if "files" in response:
+            for k, v in response["files"].items():
                 blob = self.unique_deserialize(k)
                 files[blob] = [self.unique_deserialize(f) for f in v]
-        result = Result(values=values, more=response['more'])
+        result = Result(values=values, more=response["more"])
         coll = Collection(statements=statements, files=files)
         coll.index()
         return result, coll
@@ -125,6 +125,6 @@ class StatementRepository:
                 if type(v) == Statement and v.uuid is None
                 else serialize(v) for v in s.triple])
         ser_result = self.connection.submit_transaction(ser_statements)
-        statements = self._statement_result_from_response(ser_result['statements'])
+        statements = self._statement_result_from_response(ser_result["statements"])
         coll = Collection(statements=statements)
         return coll

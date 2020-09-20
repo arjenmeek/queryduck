@@ -7,24 +7,24 @@ def get_native_vtype(native_value):
     return vtype
 
 def process_serialized_value(serialized_value):
-    vtype, ser_v = serialized_value.split(':', 1)
+    vtype, ser_v = serialized_value.split(":", 1)
     if not vtype in value_types:
         raise QDValueError("Invalid value type: {}".format(vtype))
-    v = value_types[vtype]['factory'](ser_v)
+    v = value_types[vtype]["factory"](ser_v)
     return v, vtype
 
 def serialize(native_value):
-    prefix = ''
+    prefix = ""
 
     if isinstance(native_value, QueryElement):
         prefix = native_value.prefix
         native_value = native_value.value
 
     vtype = get_native_vtype(native_value)
-    if vtype == 'filter':
+    if vtype == "filter":
         return native_value.op
 
-    serialized = '{}{}:{}'.format(prefix, vtype, value_types[vtype]['serializer'](native_value))
+    serialized = "{}{}:{}".format(prefix, vtype, value_types[vtype]["serializer"](native_value))
     return serialized
 
 def deserialize(serialized_value):
@@ -45,7 +45,7 @@ def parse_identifier(repo, bindings, identifier):
         cls = query_prefixes[identifier[0]]
         identifier = identifier[1:]
 
-    if ':' in identifier:
+    if ":" in identifier:
         v = repo.unique_deserialize(identifier)
     elif identifier in bindings:
         v = bindings[identifier]
@@ -59,7 +59,7 @@ def parse_identifier(repo, bindings, identifier):
 
 def make_identifier(result, bindings, value):
     b = bindings
-    prefix = ''
+    prefix = ""
 
     if isinstance(value, QueryElement):
         prefix = value.prefix
@@ -75,5 +75,5 @@ def make_identifier(result, bindings, value):
         labels = [s.triple[2] for s in
             result.find(s=value, p=b.label)]
         if len(type_elements) and len(labels):
-            return prefix + '/'.join([''] + type_elements + labels[0:1])
+            return prefix + "/".join([""] + type_elements + labels[0:1])
     return prefix + serialize(value)

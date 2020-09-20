@@ -47,19 +47,19 @@ class DocProcessor:
 
     def value_to_doc(self, value):
         b = self.bindings
-        main_parent = {'main': {}}
+        main_parent = {"main": {}}
         stack = [
-            (value, main_parent, 'main', 0)
+            (value, main_parent, "main", 0)
         ]
         i = 0
         while stack:
             v, parent, key, depth = stack.pop()
             #print("POPPED", v, parent, key)
             object_statements = [s for s in self.coll.find(s=v) if s != s.triple[2]]
-            if not (b.reverse_exists(v) and depth >= 1) and type(v).__name__ == 'Statement' and len(object_statements):
+            if not (b.reverse_exists(v) and depth >= 1) and type(v).__name__ == "Statement" and len(object_statements):
                 sub = {}
                 if b.reverse_exists(v):
-                    sub["="] = '{} ({})'.format(b.reverse(v), serialize(v))
+                    sub["="] = "{} ({})".format(b.reverse(v), serialize(v))
                 else:
                     sub["="] = serialize(v)
 
@@ -69,12 +69,12 @@ class DocProcessor:
                     otypes = [t for t in types if t != b.Resource]
                     btypes = [b.reverse(t) for t in otypes if b.reverse_exists(t)]
                     if label and len(btypes):
-                        sub["/"] = '/'.join([''] + btypes + [label])
+                        sub["/"] = "/".join([""] + btypes + [label])
 
                 for s in object_statements:
                     if s.triple[2] == s:
                         continue
-                    subkey = '{}'.format(b.reverse(s.triple[1]))
+                    subkey = "{}".format(b.reverse(s.triple[1]))
                     stack.append((s.triple[2], sub, subkey, depth + 1))
 
                 if key in parent and depth >= 1:
@@ -91,15 +91,15 @@ class DocProcessor:
                     parent[key].append(val)
                 else:
                     parent[key] = val
-        return main_parent['main']
+        return main_parent["main"]
 
 def safe_bytes(input_bytes):
     """Replace surrogates in UTF-8 bytes"""
-    return input_bytes.decode('utf-8', 'replace').encode('utf-8')
+    return input_bytes.decode("utf-8", "replace").encode("utf-8")
 
 def safe_string(input_string):
     """Replace surrogates in UTF-8 string"""
-    return input_string.encode('utf-8', 'replace').decode('utf-8')
+    return input_string.encode("utf-8", "replace").decode("utf-8")
 
 
 class CombinedIterator:
