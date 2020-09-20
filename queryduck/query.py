@@ -38,7 +38,7 @@ class MetaObject(QueryElement):
     prefix = '@'
 
     @staticmethod
-    def get_join_columns(v):
+    def get_join_columns(v, t):
         return ('subject_id', 'object_statement_id')
 
 
