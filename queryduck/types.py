@@ -9,9 +9,7 @@ from .exceptions import QDValueError
 
 
 class Statement:
-
-    def __init__(self, uuid_=None, id_=None, triple=None,
-            attribute_loader=None):
+    def __init__(self, uuid_=None, id_=None, triple=None, attribute_loader=None):
         self.uuid = uuid.UUID(uuid_) if type(uuid_) == str else uuid_
         self.id = id_
         self.attributes = defaultdict(list)
@@ -22,7 +20,9 @@ class Statement:
     def __getitem__(self, attr):
         """Make Statement subscriptable"""
         if self.attribute_loader is None:
-            raise QDValueError("Attempted to access Statement attribute but no loader is present")
+            raise QDValueError(
+                "Attempted to access Statement attribute but no loader is present"
+            )
         return self.attribute_loader(self, attr)
 
     def __hash__(self):
@@ -42,7 +42,8 @@ class Statement:
         return data
 
     def __repr__(self):
-        parts = ["{}={}".format(k, getattr(self, k))
+        parts = [
+            "{}={}".format(k, getattr(self, k))
             for k in ("uuid", "id")
             if getattr(self, k) is not None
         ]
@@ -52,27 +53,31 @@ class Statement:
 
 
 class Blob:
-
     def __init__(self, serialized=None, sha256=None, id_=None):
         self.id = id_
         self.sha256 = base64.urlsafe_b64decode(serialized) if sha256 is None else sha256
 
     def encoded_sha256(self):
-        r = None if self.sha256 is None else base64.urlsafe_b64encode(self.sha256).decode("utf-8")
+        r = (
+            None
+            if self.sha256 is None
+            else base64.urlsafe_b64encode(self.sha256).decode("utf-8")
+        )
         return r
 
     def serialize(self):
         return self.encoded_sha256()
 
     def __repr__(self):
-        return "<Blob id={} sha256={}>".format(self.id, None if self.sha256 is None else self.encoded_sha256())
+        return "<Blob id={} sha256={}>".format(
+            self.id, None if self.sha256 is None else self.encoded_sha256()
+        )
 
     def __hash__(self):
         return hash(self.sha256)
 
 
 class File:
-
     def __init__(self, serialized=None, volume=None, path=None):
         if serialized:
             ser_opts, self.volume, ser_path = serialized.split(":", 2)
@@ -92,11 +97,12 @@ class File:
         try:
             return ":{}:{}".format(self.volume, self.path.decode())
         except UnicodeDecodeError:
-            return "b64:{}:{}".format(self.volume, base64.urlsafe_b64encode(self.path).decode())
+            return "b64:{}:{}".format(
+                self.volume, base64.urlsafe_b64encode(self.path).decode()
+            )
 
 
 class Placeholder:
-
     def __init__(self, id_):
         self.id = id_
 
@@ -156,7 +162,7 @@ value_types = {
     "none": {
         "type": type(None),
         "factory": lambda x: None,
-        "column_name": "id", # for "IS NULL" comparison
+        "column_name": "id",  # for "IS NULL" comparison
         "serializer": str,
     },
     "file": {

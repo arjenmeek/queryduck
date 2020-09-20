@@ -8,7 +8,6 @@ from .utility import transform_doc
 
 
 class StatementRepository:
-
     def __init__(self, connection):
         self.connection = connection
         self.statement_map = weakref.WeakValueDictionary()
@@ -48,7 +47,6 @@ class StatementRepository:
         statements = schema_processor.statements_from_schema(bindings, input_schema)
         self.raw_create(statements)
 
-
     def query(self, query, target="statement", after=None):
         query = transform_doc(query, serialize)
         args = {
@@ -69,8 +67,10 @@ class StatementRepository:
                 query[f["key"]] = {}
             query[f["key"]]["_{}_".format(f["op"])] = f["value"]
 
-        query = {k: v["_eq_"] if type(v) == dict and len(v) == 1
-            and "_eq_" in v else v for k, v in query.items()}
+        query = {
+            k: v["_eq_"] if type(v) == dict and len(v) == 1 and "_eq_" in v else v
+            for k, v in query.items()
+        }
 
         response = self.connection.query_statements(query)
         result = self._result_from_response(response)
@@ -121,9 +121,13 @@ class StatementRepository:
             return Collection()
         ser_statements = []
         for s in transaction.statements:
-            ser_statements.append([None] + [v.id
-                if type(v) == Statement and v.uuid is None
-                else serialize(v) for v in s.triple])
+            ser_statements.append(
+                [None]
+                + [
+                    v.id if type(v) == Statement and v.uuid is None else serialize(v)
+                    for v in s.triple
+                ]
+            )
         ser_result = self.connection.submit_transaction(ser_statements)
         statements = self._statement_result_from_response(ser_result["statements"])
         coll = Collection(statements=statements)

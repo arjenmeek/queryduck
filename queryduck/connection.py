@@ -29,35 +29,36 @@ class APIWrapper(object):
 
     def get(self, path, params=None):
         """Perform a GET request to a path."""
-        r = requests.get("{}/{}".format(self.url, path),
-            params=params, auth=self.auth)
+        r = requests.get("{}/{}".format(self.url, path), params=params, auth=self.auth)
         self._raise_from_request(r)
         return r.json()
 
     def post(self, path, data):
         """Perform a POST request to a path with a JSON-serialized body."""
-        r = requests.post("{}/{}".format(self.url, path),
-            data=json.dumps(data), auth=self.auth)
+        r = requests.post(
+            "{}/{}".format(self.url, path), data=json.dumps(data), auth=self.auth
+        )
         self._raise_from_request(r)
         return r.json()
 
     def put(self, path, data):
         """Perform a PUT request to a path with a JSON-serialized body."""
-        r = requests.put("{}/{}".format(self.url, path),
-            data=json.dumps(data), auth=self.auth)
+        r = requests.put(
+            "{}/{}".format(self.url, path), data=json.dumps(data), auth=self.auth
+        )
         self._raise_from_request(r)
         return r.json()
 
     def delete(self, path, params=None):
         """Perform a DELETE request to a path."""
-        r = requests.delete("{}/{}".format(self.url, path),
-            params=params, auth=self.auth)
+        r = requests.delete(
+            "{}/{}".format(self.url, path), params=params, auth=self.auth
+        )
         self._raise_from_request(r)
         return r.json()
 
 
 class Connection(APIWrapper):
-
     def get_schema(self, schema_uuid):
         schema = self.get("schemas/s:{}".format(schema_uuid))
         return schema
@@ -75,11 +76,14 @@ class Connection(APIWrapper):
         return results
 
     def query_statements(self, query=None, target="statement", after=None):
-        results = self.post("statements/query", {
-            "query": query if query else {},
-            "target": target,
-            "after": after,
-        })
+        results = self.post(
+            "statements/query",
+            {
+                "query": query if query else {},
+                "target": target,
+                "after": after,
+            },
+        )
         return results
 
     def create_statements(self, statements):
@@ -94,9 +98,9 @@ class Connection(APIWrapper):
         self.post("volumes/{}/files".format(volume_reference), files)
 
     def find_files(self, volume_reference, file_paths):
-        params = [("path", urlsafe_b64encode(str(p).encode("utf-8")))
-            for p in file_paths]
-        results = self.get("volumes/{}/files".format(volume_reference),
-            params)
+        params = [
+            ("path", urlsafe_b64encode(str(p).encode("utf-8"))) for p in file_paths
+        ]
+        results = self.get("volumes/{}/files".format(volume_reference), params)
         files = {row["path"]: row for row in results["results"]}
         return files

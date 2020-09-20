@@ -9,7 +9,6 @@ from .repository import StatementRepository
 
 
 class QueryDuck:
-
     def __init__(self, url, username, password, extra_schema_files=None):
         self.main_dir = dirname(dirname(__file__))
         self.conn = Connection(url, username, password)
@@ -32,8 +31,7 @@ class QueryDuck:
                 if "/" in filename:
                     filepath = expanduser(filename)
                 else:
-                    filepath = pjoin(os.path.dirname(__file__), "schemas",
-                        filename)
+                    filepath = pjoin(os.path.dirname(__file__), "schemas", filename)
 
                 with open(filepath, "r") as f:
                     schemas.append(json.load(f))
@@ -42,4 +40,3 @@ class QueryDuck:
             self.bindings = repo.bindings_from_schemas(schemas)
 
         return self.bindings
-

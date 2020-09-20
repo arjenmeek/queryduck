@@ -2,7 +2,6 @@ from .types import Statement
 
 
 class Transaction:
-
     def __init__(self):
         self.statements = []
 
@@ -26,10 +25,12 @@ class Transaction:
     def find(self, s=None, p=None, o=None):
         statements = []
         for st in self.statements:
-            if st.triple is not None and \
-                    (s is None or st.triple[0] == s) and \
-                    (p is None or st.triple[1] == p) and \
-                    (o is None or st.triple[2] == o):
+            if (
+                st.triple is not None
+                and (s is None or st.triple[0] == s)
+                and (p is None or st.triple[1] == p)
+                and (o is None or st.triple[2] == o)
+            ):
                 statements.append(st)
 
         return statements

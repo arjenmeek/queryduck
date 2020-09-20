@@ -15,10 +15,8 @@ from .utility import (
 
 
 class VolumeFileAnalyzer:
-
     def __init__(self, volume_config):
-        self.volumes = {k: Path(v["path"])
-            for k, v in volume_config.items()}
+        self.volumes = {k: Path(v["path"]) for k, v in volume_config.items()}
 
     def analyze(self, path):
         if path.is_dir():
@@ -34,7 +32,6 @@ class VolumeFileAnalyzer:
 
 
 class VolumeProcessor:
-
     def __init__(self, conn, reference, path=None, exclude=None):
         self.conn = conn
         self.reference = reference
@@ -44,9 +41,9 @@ class VolumeProcessor:
     def update(self):
         tfi = TreeFileIterator(self.root, self.exclude)
         afi = ApiFileIterator(self.conn, self.reference)
-        ci = CombinedIterator(tfi, afi,
-            lambda x: str(x.relative_to(tfi.root)),
-            lambda x: x["path"])
+        ci = CombinedIterator(
+            tfi, afi, lambda x: str(x.relative_to(tfi.root)), lambda x: x["path"]
+        )
         with FileUpdater(self.conn, self.reference) as updater:
             for local, remote in ci:
                 k, v = self._update_file_status(local, remote)
@@ -57,14 +54,17 @@ class VolumeProcessor:
         if local is None:
             print("DELETED", safe_string(remote["path"]))
             return remote["path"], None
-        elif (remote is None
-                or local.stat().st_size != remote["size"]
-                or dt.fromtimestamp(local.stat().st_mtime)
-                    != dt.fromisoformat(remote["mtime"])
-                ):
+        elif (
+            remote is None
+            or local.stat().st_size != remote["size"]
+            or dt.fromtimestamp(local.stat().st_mtime)
+            != dt.fromisoformat(remote["mtime"])
+        ):
             relpath = str(local.relative_to(self.root))
-            print("NEW" if remote is None else "CHANGED",
-                relpath.encode("utf-8", errors="replace"))
+            print(
+                "NEW" if remote is None else "CHANGED",
+                relpath.encode("utf-8", errors="replace"),
+            )
             return relpath, self._process_file(local)
         else:
             return None, remote
@@ -82,7 +82,9 @@ class VolumeProcessor:
                 "mtime": dt.fromtimestamp(path.stat().st_mtime).isoformat(),
                 "size": path.stat().st_size,
                 "lastverify": dt.now().isoformat(),
-                "sha256": urlsafe_b64encode(self._get_file_sha256(path)).decode("utf-8"),
+                "sha256": urlsafe_b64encode(self._get_file_sha256(path)).decode(
+                    "utf-8"
+                ),
             }
         except PermissionError:
             print("Permission error, ignoring:", path)
@@ -91,7 +93,6 @@ class VolumeProcessor:
 
 
 class FileUpdater(object):
-
     def __init__(self, conn, reference, num_treshold=1000, size_treshold=1073741824):
         self.conn = conn
         self.reference = reference
@@ -110,8 +111,9 @@ class FileUpdater(object):
         self.check()
 
     def check(self):
-        total_size = sum([v["size"] for v in self.batch.values()
-            if v is not None and "size" in v])
+        total_size = sum(
+            [v["size"] for v in self.batch.values() if v is not None and "size" in v]
+        )
         if len(self.batch) >= self.num_treshold or total_size >= self.size_treshold:
             self.flush()
 
@@ -124,7 +126,6 @@ class FileUpdater(object):
 
 
 class TreeFileIterator:
-
     def __init__(self, root, exclude=None):
         self.root = root
         self.stack = [self.root]
@@ -154,8 +155,7 @@ class TreeFileIterator:
                 if p.is_symlink() or self._is_excluded(p):
                     p = self.stack.pop()
                 elif p.is_dir():
-                    self.stack += sorted(p.iterdir(),
-                        key=self.sortkey, reverse=True)
+                    self.stack += sorted(p.iterdir(), key=self.sortkey, reverse=True)
                     p = self.stack.pop()
                 else:
                     break
@@ -184,16 +184,19 @@ class ApiFileIterator:
             params = {"limit": self.preferred_limit}
             if self.without_statements:
                 params["without_statements"] = 1
-            response = self.api.get("volumes/{}/files".format(self.reference),
-                params=params)
+            response = self.api.get(
+                "volumes/{}/files".format(self.reference), params=params
+            )
         else:
-            after = urlsafe_b64encode(os.fsencode(
-                self.results[self.limit-1]["path"])).decode()
+            after = urlsafe_b64encode(
+                os.fsencode(self.results[self.limit - 1]["path"])
+            ).decode()
             params = {"after": after, "limit": self.preferred_limit}
             if self.without_statements:
                 params["without_statements"] = 1
-            response = self.api.get("volumes/{}/files".format(self.reference),
-                params=params)
+            response = self.api.get(
+                "volumes/{}/files".format(self.reference), params=params
+            )
         self.results = response["results"]
         self.limit = response["limit"]
         self.idx = 0

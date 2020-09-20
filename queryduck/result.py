@@ -5,7 +5,6 @@ from .serialization import deserialize
 
 
 class Collection:
-
     def __init__(self, statements=None, files=None):
         self.statements = {}
         self.files = {}
@@ -35,12 +34,24 @@ class Collection:
         for st in self.statements.values():
             for triple in [
                 (st.triple[0], st.triple[1], st.triple[2]),
-                (None,         st.triple[1], st.triple[2]),
-                (st.triple[0], None,         st.triple[2]),
-                (st.triple[0], st.triple[1], None,       ),
-                (None,         None,         st.triple[2]),
-                (None,         st.triple[1], None,       ),
-                (st.triple[0], None,         None,       ),
+                (None, st.triple[1], st.triple[2]),
+                (st.triple[0], None, st.triple[2]),
+                (
+                    st.triple[0],
+                    st.triple[1],
+                    None,
+                ),
+                (None, None, st.triple[2]),
+                (
+                    None,
+                    st.triple[1],
+                    None,
+                ),
+                (
+                    st.triple[0],
+                    None,
+                    None,
+                ),
             ]:
                 self.indexed[triple].append(st)
 
@@ -52,10 +63,12 @@ class Collection:
             return self.indexed[(s, p, o)]
         statements = []
         for st in self.statements.values():
-            if st.triple is not None and \
-                    (s is None or st.triple[0] == s) and \
-                    (p is None or st.triple[1] == p) and \
-                    (o is None or st.triple[2] == o):
+            if (
+                st.triple is not None
+                and (s is None or st.triple[0] == s)
+                and (p is None or st.triple[1] == p)
+                and (o is None or st.triple[2] == o)
+            ):
                 statements.append(st)
         return statements
 
@@ -65,10 +78,12 @@ class Collection:
             return self.indexed[k][0] if k in self.indexed else None
         statements = []
         for st in self.statements.values():
-            if st.triple is not None and \
-                    (s is None or st.triple[0] == s) and \
-                    (p is None or st.triple[1] == p) and \
-                    (o is None or st.triple[2] == o):
+            if (
+                st.triple is not None
+                and (s is None or st.triple[0] == s)
+                and (p is None or st.triple[1] == p)
+                and (o is None or st.triple[2] == o)
+            ):
                 return st
         return None
 
@@ -88,7 +103,6 @@ class Collection:
 
 
 class Result:
-
     def __init__(self, values, more):
         self.values = values
         self.more = more
