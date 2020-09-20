@@ -65,9 +65,11 @@ class DocProcessor:
 
                 label = self.coll.object_for(v, b.label)
                 types = self.coll.objects_for(v, b.type)
-                btypes = [b.reverse(t) for t in types if b.reverse_exists(t)]
-                if label and len(btypes):
-                    sub["/"] = '/'.join([''] + btypes + [label])
+                if b.Resource in types:
+                    otypes = [t for t in types if t != b.Resource]
+                    btypes = [b.reverse(t) for t in otypes if b.reverse_exists(t)]
+                    if label and len(btypes):
+                        sub["/"] = '/'.join([''] + btypes + [label])
 
                 for s in object_statements:
                     if s.triple[2] == s:
