@@ -69,7 +69,7 @@ class VolumeProcessor:
         else:
             return None, remote
 
-    def _get_file_sha256(self, path):
+    def _get_file_handle(self, path):
         s = hashlib.sha256()
         with path.open("rb") as f:
             for chunk in iter(partial(f.read, 256 * 1024), b""):
@@ -82,7 +82,7 @@ class VolumeProcessor:
                 "mtime": dt.fromtimestamp(path.stat().st_mtime).isoformat(),
                 "size": path.stat().st_size,
                 "lastverify": dt.now().isoformat(),
-                "sha256": urlsafe_b64encode(self._get_file_sha256(path)).decode(
+                "handle": urlsafe_b64encode(self._get_file_handle(path)).decode(
                     "utf-8"
                 ),
             }

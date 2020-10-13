@@ -9,8 +9,8 @@ from .exceptions import QDValueError
 
 
 class Statement:
-    def __init__(self, uuid_=None, id_=None, triple=None, attribute_loader=None):
-        self.uuid = uuid.UUID(uuid_) if type(uuid_) == str else uuid_
+    def __init__(self, handle=None, id_=None, triple=None, attribute_loader=None):
+        self.handle = uuid.UUID(handle) if type(handle) == str else handle
         self.id = id_
         self.attributes = defaultdict(list)
         self.triple = triple
@@ -26,14 +26,14 @@ class Statement:
         return self.attribute_loader(self, attr)
 
     def __hash__(self):
-        if self.uuid is None:
+        if self.handle is None:
             return hash(self.id)
-        return hash(self.uuid)
+        return hash(self.handle)
 
     def __json__(self, request):
         data = {
-            "uuid": "uuid:{}".format(self.uuid),
-            "_ref": "s:{}".format(self.uuid),
+            "handle": "handle:{}".format(self.handle),
+            "_ref": "s:{}".format(self.handle),
         }
         for k, vlist in self.attributes.items():
             data[k] = []
@@ -44,7 +44,7 @@ class Statement:
     def __repr__(self):
         parts = [
             "{}={}".format(k, getattr(self, k))
-            for k in ("uuid", "id")
+            for k in ("handle", "id")
             if getattr(self, k) is not None
         ]
         if self.triple:
@@ -53,28 +53,28 @@ class Statement:
 
 
 class Blob:
-    def __init__(self, serialized=None, sha256=None, id_=None):
+    def __init__(self, serialized=None, handle=None, id_=None):
         self.id = id_
-        self.sha256 = base64.urlsafe_b64decode(serialized) if sha256 is None else sha256
+        self.handle = base64.urlsafe_b64decode(serialized) if handle is None else handle
 
-    def encoded_sha256(self):
+    def encoded_handle(self):
         r = (
             None
-            if self.sha256 is None
-            else base64.urlsafe_b64encode(self.sha256).decode("utf-8")
+            if self.handle is None
+            else base64.urlsafe_b64encode(self.handle).decode("utf-8")
         )
         return r
 
     def serialize(self):
-        return self.encoded_sha256()
+        return self.encoded_handle()
 
     def __repr__(self):
-        return "<Blob id={} sha256={}>".format(
-            self.id, None if self.sha256 is None else self.encoded_sha256()
+        return "<Blob id={} handle={}>".format(
+            self.id, None if self.handle is None else self.encoded_handle()
         )
 
     def __hash__(self):
-        return hash(self.sha256)
+        return hash(self.handle)
 
 
 class File:
@@ -151,7 +151,7 @@ value_types = {
         "type": Statement,
         "factory": Statement,
         "column_name": "object_statement_id",
-        "serializer": lambda s: s.uuid,
+        "serializer": lambda s: s.handle,
     },
     "blob": {
         "type": Blob,

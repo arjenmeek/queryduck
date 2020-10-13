@@ -24,13 +24,13 @@ class StatementRepository:
         """Ensures there is only ever one instance of the same Statement present"""
         s = deserialize(ref)
         if type(s) == Statement:
-            if s.uuid not in self.statement_map:
-                self.statement_map[s.uuid] = s
-            return self.statement_map[s.uuid]
+            if s.handle not in self.statement_map:
+                self.statement_map[s.handle] = s
+            return self.statement_map[s.handle]
         elif type(s) == Blob:
-            if s.sha256 not in self.blob_map:
-                self.blob_map[s.sha256] = s
-            return self.blob_map[s.sha256]
+            if s.handle not in self.blob_map:
+                self.blob_map[s.handle] = s
+            return self.blob_map[s.handle]
         else:
             return s
 
@@ -86,7 +86,7 @@ class StatementRepository:
                     self.unique_deserialize(v[1]),
                     self.unique_deserialize(v[2]),
                 )
-            statements[statement.uuid] = statement
+            statements[statement.handle] = statement
         return statements
 
     def _result_from_response(self, response):
@@ -124,7 +124,7 @@ class StatementRepository:
             ser_statements.append(
                 [None]
                 + [
-                    v.id if type(v) == Statement and v.uuid is None else serialize(v)
+                    v.id if type(v) == Statement and v.handle is None else serialize(v)
                     for v in s.triple
                 ]
             )
