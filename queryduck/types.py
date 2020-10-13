@@ -127,6 +127,12 @@ value_types = {
         "column_name": "object_boolean",
         "serializer": str,
     },
+    "bytes": {
+        "type": bytes,
+        "factory": lambda b: base64.urlsafe_b64decode(),
+        "column_name": "object_bytes",
+        "serializer": lambda b: base64.urlsafe_b64encode(b).decode("utf-8"),
+    },
     "dec": {
         "type": Decimal,
         "factory": Decimal,
@@ -173,6 +179,7 @@ value_types = {
 value_types_by_native = {
     int: "int",
     bool: "bool",
+    bytes: "bytes",
     Decimal: "dec",
     str: "str",
     datetime.datetime: "datetime",
