@@ -1,3 +1,4 @@
+import abc
 import base64
 import datetime
 import uuid
@@ -8,7 +9,18 @@ from decimal import Decimal
 from .exceptions import QDValueError
 
 
-class Statement:
+class CompoundValue(abc.ABC):
+    @abc.abstractmethod
+    def __init__(self):
+        pass
+
+    def __hash__(self):
+        if self.handle is None:
+            return hash(self.id)
+        return hash(self.handle)
+
+
+class Statement(CompoundValue):
     def __init__(self, handle=None, id_=None, triple=None, attribute_loader=None):
         self.handle = uuid.UUID(handle) if type(handle) == str else handle
         self.id = id_
@@ -24,11 +36,6 @@ class Statement:
                 "Attempted to access Statement attribute but no loader is present"
             )
         return self.attribute_loader(self, attr)
-
-    def __hash__(self):
-        if self.handle is None:
-            return hash(self.id)
-        return hash(self.handle)
 
     def __json__(self, request):
         data = {
@@ -52,7 +59,7 @@ class Statement:
         return "<Statement {}>".format(" ".join(parts))
 
 
-class Blob:
+class Blob(CompoundValue):
     def __init__(self, serialized=None, handle=None, id_=None):
         self.id = id_
         self.handle = base64.urlsafe_b64decode(serialized) if handle is None else handle
@@ -72,9 +79,6 @@ class Blob:
         return "<Blob id={} handle={}>".format(
             self.id, None if self.handle is None else self.encoded_handle()
         )
-
-    def __hash__(self):
-        return hash(self.handle)
 
 
 class File:
