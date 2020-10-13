@@ -129,12 +129,6 @@ value_types = {
         "column_name": "object_decimal",
         "serializer": str,
     },
-    "float": {
-        "type": float,
-        "factory": float,
-        "column_name": "object_float",
-        "serializer": str,
-    },
     "str": {
         "type": str,
         "factory": str,
@@ -176,7 +170,6 @@ value_types_by_native = {
     int: "int",
     bool: "bool",
     Decimal: "dec",
-    float: "float",
     str: "str",
     datetime.datetime: "datetime",
     Statement: "s",
