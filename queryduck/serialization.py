@@ -1,5 +1,4 @@
 from .exceptions import QDValueError
-from .query import QueryElement, query_prefixes
 from .types import Statement, value_types, value_types_by_native
 
 
@@ -19,10 +18,6 @@ def process_serialized_value(serialized_value):
 def serialize(native_value):
     prefix = ""
 
-    if isinstance(native_value, QueryElement):
-        prefix = native_value.prefix
-        native_value = native_value.value
-
     vtype = get_native_vtype(native_value)
     if vtype == "filter":
         return native_value.op
@@ -35,9 +30,6 @@ def serialize(native_value):
 
 def deserialize(serialized_value):
     cls = None
-    if serialized_value[0] in query_prefixes:
-        cls = query_prefixes[serialized_value[0]]
-        serialized_value = serialized_value[1:]
 
     v, vtype = process_serialized_value(serialized_value)
     if cls:
@@ -48,14 +40,15 @@ def deserialize(serialized_value):
 def parse_identifier(repo, bindings, identifier):
     cls = None
 
-    if identifier[0] in query_prefixes:
-        cls = query_prefixes[identifier[0]]
-        identifier = identifier[1:]
-
     if ":" in identifier:
         v = repo.unique_deserialize(identifier)
     elif identifier in bindings:
         v = bindings[identifier]
+    elif identifier.startswith("/"):
+        dummy, *resources, label = identifier.split("/")
+        result, coll = repo.query({MatchObject(bindings.label): label})
+        print(result.values)
+        v = label
     else:
         v = identifier
 
@@ -68,10 +61,6 @@ def parse_identifier(repo, bindings, identifier):
 def make_identifier(result, bindings, value):
     b = bindings
     prefix = ""
-
-    if isinstance(value, QueryElement):
-        prefix = value.prefix
-        value = value.value
 
     if b.reverse_exists(value):
         return prefix + b.reverse(value)

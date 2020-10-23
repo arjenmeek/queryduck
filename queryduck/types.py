@@ -7,6 +7,7 @@ from collections import defaultdict
 from decimal import Decimal
 
 from .exceptions import QDValueError
+from .query import ObjectFor
 
 
 class CompoundValue(abc.ABC):
@@ -14,39 +15,15 @@ class CompoundValue(abc.ABC):
     def __init__(self):
         pass
 
-    def __hash__(self):
-        if self.handle is None:
-            return hash(self.id)
-        return hash(self.handle)
-
 
 class Statement(CompoundValue):
-    def __init__(self, handle=None, id_=None, triple=None, attribute_loader=None):
+    target_name = "statement"
+
+    def __init__(self, handle=None, id_=None, triple=None):
         self.handle = uuid.UUID(handle) if type(handle) == str else handle
         self.id = id_
-        self.attributes = defaultdict(list)
         self.triple = triple
-        self.attribute_loader = attribute_loader
         self.saved = False
-
-    def __getitem__(self, attr):
-        """Make Statement subscriptable"""
-        if self.attribute_loader is None:
-            raise QDValueError(
-                "Attempted to access Statement attribute but no loader is present"
-            )
-        return self.attribute_loader(self, attr)
-
-    def __json__(self, request):
-        data = {
-            "handle": "handle:{}".format(self.handle),
-            "_ref": "s:{}".format(self.handle),
-        }
-        for k, vlist in self.attributes.items():
-            data[k] = []
-            for v in vlist:
-                data[k].append(v.serialize())
-        return data
 
     def __repr__(self):
         parts = [
@@ -60,6 +37,8 @@ class Statement(CompoundValue):
 
 
 class Blob(CompoundValue):
+    target_name = "blob"
+
     def __init__(self, serialized=None, handle=None, id_=None):
         self.id = id_
         self.handle = base64.urlsafe_b64decode(serialized) if handle is None else handle
@@ -129,7 +108,7 @@ value_types = {
     },
     "bytes": {
         "type": bytes,
-        "factory": lambda b: base64.urlsafe_b64decode(),
+        "factory": lambda b: base64.urlsafe_b64decode(b),
         "column_name": "object_bytes",
         "serializer": lambda b: base64.urlsafe_b64encode(b).decode("utf-8"),
     },
@@ -174,6 +153,10 @@ value_types = {
         "factory": File,
         "serializer": lambda f: f.serialize(),
     },
+    "objectfor": {
+        "type": ObjectFor,
+        "serializer": lambda f: "main",
+    },
 }
 
 value_types_by_native = {
@@ -187,6 +170,7 @@ value_types_by_native = {
     Blob: "blob",
     type(None): "none",
     File: "file",
+    ObjectFor: "objectfor",
 }
 
 value_comparison_methods = {

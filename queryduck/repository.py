@@ -1,7 +1,8 @@
 import weakref
 
 from .schema import Bindings, SchemaProcessor
-from .types import Statement, Blob
+from .types import CompoundValue, Statement, Blob
+from .query import QDQuery
 from .result import Collection, Result
 from .serialization import serialize, deserialize
 from .utility import transform_doc
@@ -48,6 +49,9 @@ class StatementRepository:
         self.raw_create(statements)
 
     def query(self, query, target="statement", after=None):
+        if issubclass(query, CompoundValue):
+            q = QDQuery(self, query)
+            return q
         query = transform_doc(query, serialize)
         args = {
             "query": query,
@@ -55,7 +59,28 @@ class StatementRepository:
         }
         if after is not None:
             args["after"] = serialize(after)
-        response = self.connection.query_statements(**args)
+        response = self.connection.query(**args)
+        result = self._result_from_response(response)
+        return result
+
+    def _query_to_params(self, query):
+        params = []
+        for k, v in query.joins.items():
+            if k == "main":
+                continue
+            predicate_str = serialize(v.predicate)
+            params.append(
+                (f"join.{v.keyword}", f"{v.target.key},{v.key},{predicate_str}")
+            )
+        for f in query.filters:
+            parts = (str(f.lhs), serialize(f.rhs))
+            params.append((f"filter.{f.keyword}", ",".join(parts)))
+        return params
+
+    def execute(self, query):
+        target = "blob" if query.target == Blob else "statement"
+        params = self._query_to_params(query)
+        response = self.connection.get_query(params, target=target)
         result = self._result_from_response(response)
         return result
 

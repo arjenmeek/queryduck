@@ -1,4 +1,3 @@
-from .query import MatchSubject
 from .serialization import serialize, make_identifier
 
 
@@ -64,7 +63,15 @@ class DocProcessor:
                 else:
                     sub["="] = serialize(v)
 
-                label = self.coll.object_for(v, b.label)
+                labels = self.coll.objects_for(v, b.label)
+                for l in labels:
+                    if type(l) == str:
+                        label = l
+                        break
+                else:
+                    label = None
+                    break
+
                 types = self.coll.objects_for(v, b.type)
                 if b.Resource in types:
                     otypes = [t for t in types if t != b.Resource]
