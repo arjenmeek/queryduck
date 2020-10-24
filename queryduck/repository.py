@@ -68,10 +68,9 @@ class StatementRepository:
         for k, v in query.joins.items():
             if k == "main":
                 continue
-            predicate_str = serialize(v.predicate)
-            params.append(
-                (f"join.{v.keyword}", f"{v.target.key},{v.key},{predicate_str}")
-            )
+            predicate_strs = [serialize(p) for p in v.predicates]
+            parts = [v.target.key, v.key] + predicate_strs
+            params.append((f"join.{v.keyword}", ','.join(parts)))
         for f in query.filters:
             parts = (str(f.lhs), serialize(f.rhs))
             params.append((f"filter.{f.keyword}", ",".join(parts)))

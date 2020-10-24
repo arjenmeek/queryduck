@@ -30,11 +30,11 @@ class QueryEntity(QueryElement):
     def __ge__(self, other):
         return GreaterEqual(self, other)
 
-    def object_for(self, predicate):
-        return ObjectFor(predicate, self)
+    def object_for(self, *predicates):
+        return ObjectFor(predicates, self)
 
-    def subject_for(self, predicate):
-        return SubjectFor(predicate, self)
+    def subject_for(self, *predicates):
+        return SubjectFor(predicates, self)
 
 
 class Main(QueryEntity):
@@ -49,8 +49,8 @@ class Main(QueryEntity):
 class JoinEntity(QueryEntity):
     num_args = 3
 
-    def __init__(self, predicate, target=None, key=None):
-        self.predicate = predicate
+    def __init__(self, predicates, target=None, key=None):
+        self.predicates = predicates
         self.target = target
         self.key = key
 
@@ -238,7 +238,7 @@ class QDQuery:
 
     def join(self, entity):
         if isinstance(entity, JoinEntity):
-            self.seen_values.add(entity.predicate)
+            [self.seen_values.add(p) for p in entity.predicates]
         current = entity
         stack = []
         while current:
