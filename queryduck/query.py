@@ -2,12 +2,11 @@ from .constants import Component
 
 
 class QueryElement:
-    pass
+    def __repr__(self):
+        return f"<{self.__class__.__name__} [...]>"
 
 
 class QueryEntity(QueryElement):
-    def __repr__(self):
-        return f"<{self.__class__.__name__}>"
 
     def __str__(self):
         return f"alias:{self.key}"
@@ -45,6 +44,9 @@ class Main(QueryEntity):
         self.key = "main"
         self.target = None
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__}>"
+
 
 class JoinEntity(QueryEntity):
     num_args = 3
@@ -53,6 +55,9 @@ class JoinEntity(QueryEntity):
         self.predicates = predicates
         self.target = target
         self.key = key
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} predicates={self.predicates} target={self.target}>"
 
 
 class ObjectFor(JoinEntity):
@@ -77,6 +82,9 @@ class Comparison(Filter):
     def __init__(self, lhs, rhs):
         self.lhs = lhs
         self.rhs = rhs
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} lhs={self.lhs} rhs={self.rhs}>"
 
 
 class UnaryFilter(Filter):
@@ -235,6 +243,21 @@ class QDQuery:
         self.havings = []
         self.limit = 1000
         self.seen_values = set()
+
+    def show(self):
+        print("------ START QUERY SUMMARY ------")
+        print("JOINS:")
+        [print(f"    {k}: {v}") for k, v in self.joins.items()]
+        print("FILTERS:")
+        [print(f"    {f}") for f in self.filters]
+        print("ORDERS:")
+        [print(f"    {o}") for o in self.orders]
+        print("PREFERS:")
+        [print(f"    {p}") for p in self.prefers]
+        print("HAVINGS:")
+        [print(f"    {h}") for h in self.havings]
+        print("LIMIT:", self.limit)
+        print("------ END QUERY SUMMARY ------")
 
     def join(self, entity):
         if isinstance(entity, JoinEntity):
