@@ -74,6 +74,8 @@ class StatementRepository:
         for f in query.filters:
             parts = (str(f.lhs), serialize(f.rhs))
             params.append((f"filter.{f.keyword}", ",".join(parts)))
+        for f in query.fetches:
+            params.append((f"fetch.entity", f.operand.key))
         return params
 
     def execute(self, query):

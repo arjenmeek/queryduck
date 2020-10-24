@@ -1,4 +1,5 @@
 from .constants import Component
+from .exceptions import UserError
 
 
 class QueryElement:
@@ -34,6 +35,9 @@ class QueryEntity(QueryElement):
 
     def subject_for(self, *predicates):
         return SubjectFor(predicates, self)
+
+    def fetch(self):
+        return FetchEntity(self)
 
 
 class Main(QueryEntity):
@@ -207,6 +211,16 @@ class HavingNotNull(HavingUnaryFilter):
     keyword = "notnull"
 
 
+class FetchEntity(QueryElement):
+    num_args = 1
+
+    def __init__(self, operand):
+        self.operand = operand
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} operand={repr(self.operand)}>"
+
+
 element_classes = {
     ("join", "objectfor"): ObjectFor,
     ("join", "subjectfor"): SubjectFor,
@@ -230,6 +244,7 @@ element_classes = {
     ("having", "ge"): HavingGreaterEqual,
     ("having", "isnull"): HavingIsNull,
     ("having", "notnull"): HavingNotNull,
+    ("fetch", "entity"): FetchEntity,
 }
 
 
@@ -241,13 +256,14 @@ class QDQuery:
         self.orders = []
         self.prefers = []
         self.havings = []
+        self.fetches = []
         self.limit = 1000
         self.seen_values = set()
 
     def show(self):
         print("------ START QUERY SUMMARY ------")
         print("JOINS:")
-        [print(f"    {k}: {v}") for k, v in self.joins.items()]
+        [print(f"    {k}: {repr(v)}") for k, v in self.joins.items()]
         print("FILTERS:")
         [print(f"    {f}") for f in self.filters]
         print("ORDERS:")
@@ -256,8 +272,17 @@ class QDQuery:
         [print(f"    {p}") for p in self.prefers]
         print("HAVINGS:")
         [print(f"    {h}") for h in self.havings]
+        print("FETCHES:")
+        [print(f"    {f}") for f in self.fetches]
         print("LIMIT:", self.limit)
         print("------ END QUERY SUMMARY ------")
+
+    def _get_join_key(self, prefix="join"):
+        for i in range(1, 1000):
+            try_key = f"{prefix}{i}"
+            if not try_key in self.joins:
+                return try_key
+        raise UserError("Too many joins")
 
     def join(self, entity):
         if isinstance(entity, JoinEntity):
@@ -266,7 +291,7 @@ class QDQuery:
         stack = []
         while current:
             if not current.key:
-                current.key = "dummykey"
+                current.key = self._get_join_key()
             if not current.key in self.joins:
                 stack.append(current)
             current = current.target
@@ -304,6 +329,12 @@ class QDQuery:
             self._prepare_element(having.lhs)
             self._prepare_element(having.rhs)
             self.havings.append(having)
+        return self
+
+    def fetch(self, *fetches):
+        for fetch in fetches:
+            self._prepare_element(fetch.operand)
+            self.fetches.append(fetch)
         return self
 
     def limit(self, limit):
