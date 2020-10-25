@@ -1,6 +1,7 @@
 from .constants import Component
 from .serialization import serialize
 from .exceptions import UserError
+from .types import Blob, Statement
 
 
 class QueryElement:
@@ -336,6 +337,24 @@ def query_to_request_params(query, serializer):
         val = e.serialize(callback)
         params.append((key, val))
     return params
+
+
+def request_params_to_query(params, target_name, deserializer):
+    target = Blob if target_name == "blob" else Statement
+    q = QDQuery(target)
+    q.join(Main())
+    def callback(string):
+        if string.startswith("alias:"):
+            return q.joins[string[6:]]
+        else:
+            return deserializer(string)
+
+    for k, v in params:
+        cls = element_classes[tuple(k.split("."))]
+        element = cls.deserialize(v, callback)
+        q.add(element)
+
+    return q
 
 
 class QDQuery:
