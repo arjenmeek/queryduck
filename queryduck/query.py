@@ -323,12 +323,12 @@ element_classes = {
 }
 
 
-def query_to_request_params(query):
+def query_to_request_params(query, serializer):
     def callback(value):
         if isinstance(value, QueryEntity):
             return f"alias:{value.key}"
         else:
-            return serialize(value)
+            return serializer(value)
 
     params = []
     for e in query.elements:
