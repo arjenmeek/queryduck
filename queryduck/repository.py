@@ -2,7 +2,7 @@ import weakref
 
 from .schema import Bindings, SchemaProcessor
 from .types import CompoundValue, Statement, Blob
-from .query import QDQuery
+from .query import QDQuery, QueryEntity, query_to_request_params
 from .result import Collection, Result
 from .serialization import serialize, deserialize
 from .utility import transform_doc
@@ -63,24 +63,9 @@ class StatementRepository:
         result = self._result_from_response(response)
         return result
 
-    def _query_to_params(self, query):
-        params = []
-        for k, v in query.joins.items():
-            if k == "main":
-                continue
-            predicate_strs = [serialize(p) for p in v.predicates]
-            parts = [v.target.key, v.key] + predicate_strs
-            params.append((f"join.{v.keyword}", ','.join(parts)))
-        for f in query.filters:
-            parts = (str(f.lhs), serialize(f.rhs))
-            params.append((f"filter.{f.keyword}", ",".join(parts)))
-        for f in query.fetches:
-            params.append((f"fetch.entity", f.operand.key))
-        return params
-
     def execute(self, query):
         target = "blob" if query.target == Blob else "statement"
-        params = self._query_to_params(query)
+        params = query_to_request_params(query)
         response = self.connection.get_query(params, target=target)
         result = self._result_from_response(response)
         return result

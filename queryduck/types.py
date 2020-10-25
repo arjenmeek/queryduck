@@ -7,7 +7,6 @@ from collections import defaultdict
 from decimal import Decimal
 
 from .exceptions import QDValueError
-from .query import ObjectFor
 
 
 class CompoundValue(abc.ABC):
@@ -153,10 +152,6 @@ value_types = {
         "factory": File,
         "serializer": lambda f: f.serialize(),
     },
-    "objectfor": {
-        "type": ObjectFor,
-        "serializer": lambda f: "main",
-    },
 }
 
 value_types_by_native = {
@@ -170,7 +165,6 @@ value_types_by_native = {
     Blob: "blob",
     type(None): "none",
     File: "file",
-    ObjectFor: "objectfor",
 }
 
 value_comparison_methods = {

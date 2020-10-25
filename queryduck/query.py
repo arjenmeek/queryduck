@@ -1,4 +1,5 @@
 from .constants import Component
+from .serialization import serialize
 from .exceptions import UserError
 
 
@@ -6,8 +7,12 @@ class QueryElement:
     def __repr__(self):
         return f"<{self.__class__.__name__} [...]>"
 
+    def get_operands(self):
+        return []
+
 
 class QueryEntity(QueryElement):
+    maintype = "join"
 
     def __str__(self):
         return f"alias:{self.key}"
@@ -39,6 +44,9 @@ class QueryEntity(QueryElement):
     def fetch(self):
         return FetchEntity(self)
 
+    def order_asc(self, vtype):
+        return OrderAscending(self, vtype)
+
 
 class Main(QueryEntity):
     keyword = "main"
@@ -61,7 +69,19 @@ class JoinEntity(QueryEntity):
         self.key = key
 
     def __repr__(self):
-        return f"<{self.__class__.__name__} predicates={self.predicates} target={self.target}>"
+        return f"<{self.__class__.__name__} predicates={self.predicates} target={self.target} key={self.key}>"
+
+    @classmethod
+    def deserialize(cls, string, callback):
+        target_string, key, *predicate_strs = string.split(",")
+        target = callback(target_string)
+        predicates = [callback(ps) for ps in predicate_strs]
+        return cls(predicates, target, key)
+
+    def serialize(self, callback):
+        parts = [callback(self.target), self.key]
+        parts += [callback(p) for p in self.predicates]
+        return ",".join(parts)
 
 
 class ObjectFor(JoinEntity):
@@ -77,7 +97,7 @@ class SubjectFor(JoinEntity):
 
 
 class Filter(QueryElement):
-    pass
+    maintype = "filter"
 
 
 class Comparison(Filter):
@@ -90,12 +110,27 @@ class Comparison(Filter):
     def __repr__(self):
         return f"<{self.__class__.__name__} lhs={self.lhs} rhs={self.rhs}>"
 
+    @classmethod
+    def deserialize(cls, string, callback):
+        lhs_string, rhs_string = string.split(",")
+        lhs, rhs = callback(lhs_string), callback(rhs_string)
+        return cls(lhs, rhs)
+
+    def serialize(self, callback):
+        return f"{callback(self.lhs)},{callback(self.rhs)}"
+
+    def get_operands(self):
+        return [self.lhs, self.rhs]
+
 
 class UnaryFilter(Filter):
     num_args = 1
 
     def __init__(self, operand):
         self.operand = operand
+
+    def get_operands(self):
+        return [self.operand]
 
 
 class Equals(Comparison):
@@ -131,10 +166,27 @@ class NotNull(UnaryFilter):
 
 
 class Order(QueryElement):
-    num_args = 1
+    maintype = "order"
+    num_args = 2
 
-    def __init__(self, by):
+    def __init__(self, by, vtype):
         self.by = by
+        self.vtype = vtype
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} by={self.by} vtype={self.vtype}>"
+
+    @classmethod
+    def deserialize(cls, string, callback):
+        target_string, vtype = string.split(",")
+        target = callback(target_string)
+        return cls(target, vtype)
+
+    def serialize(self, callback):
+        return f"{callback(self.by)},{self.vtype}"
+
+    def get_operands(self):
+        return [self.by]
 
 
 class OrderAscending(Order):
@@ -146,10 +198,14 @@ class OrderDescending(Order):
 
 
 class Prefer(QueryElement):
+    maintype = "prefer"
     num_args = 1
 
     def __init__(self, by):
         self.by = by
+
+    def get_operands(self):
+        return [self.by]
 
 
 class PreferMin(Prefer):
@@ -161,7 +217,7 @@ class PreferMax(Prefer):
 
 
 class Having(QueryElement):
-    pass
+    maintype = "having"
 
 
 class HavingComparison(Having):
@@ -171,12 +227,18 @@ class HavingComparison(Having):
         self.lhs = lhs
         self.rhs = rhs
 
+    def get_operands(self):
+        return [self.lhs, self.rhs]
 
-class HavingUnaryFilter(Filter):
+
+class HavingUnary(Having):
     num_args = 1
 
     def __init__(self, operand):
         self.operand = operand
+
+    def get_operands(self):
+        return [self.operand]
 
 
 class HavingEquals(HavingComparison):
@@ -203,15 +265,17 @@ class HavingGreaterEqual(HavingComparison):
     keyword = "ge"
 
 
-class HavingIsNull(HavingUnaryFilter):
+class HavingIsNull(HavingUnary):
     keyword = "isnull"
 
 
-class HavingNotNull(HavingUnaryFilter):
+class HavingNotNull(HavingUnary):
     keyword = "notnull"
 
 
 class FetchEntity(QueryElement):
+    maintype = "fetch"
+    keyword = "entity"
     num_args = 1
 
     def __init__(self, operand):
@@ -219,6 +283,17 @@ class FetchEntity(QueryElement):
 
     def __repr__(self):
         return f"<{self.__class__.__name__} operand={repr(self.operand)}>"
+
+    @classmethod
+    def deserialize(cls, string, callback):
+        operand = callback(string)
+        return cls(operand)
+
+    def serialize(self, callback):
+        callback(self.operand)
+
+    def get_operands(self):
+        return [self.operand]
 
 
 element_classes = {
@@ -248,9 +323,25 @@ element_classes = {
 }
 
 
+def query_to_request_params(query):
+    def callback(value):
+        if isinstance(value, QueryEntity):
+            return f"alias:{value.key}"
+        else:
+            return serialize(value)
+
+    params = []
+    for e in query.elements:
+        key = f"{e.maintype}.{e.keyword}"
+        val = e.serialize(callback)
+        params.append((key, val))
+    return params
+
+
 class QDQuery:
     def __init__(self, target):
         self.target = target
+        self.elements = []
         self.joins = {}
         self.filters = []
         self.orders = []
@@ -262,18 +353,10 @@ class QDQuery:
 
     def show(self):
         print("------ START QUERY SUMMARY ------")
+        print("ELEMENTS:")
+        [print(f"    {repr(e)}") for e in self.elements]
         print("JOINS:")
         [print(f"    {k}: {repr(v)}") for k, v in self.joins.items()]
-        print("FILTERS:")
-        [print(f"    {f}") for f in self.filters]
-        print("ORDERS:")
-        [print(f"    {o}") for o in self.orders]
-        print("PREFERS:")
-        [print(f"    {p}") for p in self.prefers]
-        print("HAVINGS:")
-        [print(f"    {h}") for h in self.havings]
-        print("FETCHES:")
-        [print(f"    {f}") for f in self.fetches]
         print("LIMIT:", self.limit)
         print("------ END QUERY SUMMARY ------")
 
@@ -305,37 +388,17 @@ class QDQuery:
         else:
             self.seen_values.add(element)
 
-    def filter(self, *comparisons):
-        for comparison in comparisons:
-            self._prepare_element(comparison.lhs)
-            self._prepare_element(comparison.rhs)
-            self.filters.append(comparison)
+    def add(self, *elements):
+        for element in elements:
+            if isinstance(element, QueryEntity):
+                self.join(element)
+            [self._prepare_element(o) for o in element.get_operands()]
+            self.elements.append(element)
         return self
 
-    def order(self, *orders):
-        for order in orders:
-            self._prepare_element(order.by)
-            self.orders.append(order)
-        return self
-
-    def prefer(self, *prefers):
-        for prefer in prefers:
-            self._prepare_element(prefer.by)
-            self.prefers.append(prefer)
-        return self
-
-    def having(self, *havings):
-        for having in havings:
-            self._prepare_element(having.lhs)
-            self._prepare_element(having.rhs)
-            self.havings.append(having)
-        return self
-
-    def fetch(self, *fetches):
-        for fetch in fetches:
-            self._prepare_element(fetch.operand)
-            self.fetches.append(fetch)
-        return self
+    def get_elements(self, cls):
+        elements = [e for e in self.elements if isinstance(e, cls)]
+        return elements
 
     def limit(self, limit):
         self.limit = limit
