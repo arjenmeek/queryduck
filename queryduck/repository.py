@@ -63,9 +63,11 @@ class StatementRepository:
         result = self._result_from_response(response)
         return result
 
-    def execute(self, query):
+    def execute(self, query, serializer=None):
+        if serializer is None:
+            serializer = serialize
         target = "blob" if query.target == Blob else "statement"
-        params = query_to_request_params(query)
+        params = query_to_request_params(query, serializer)
         response = self.connection.get_query(params, target=target)
         result = self._result_from_response(response)
         return result
