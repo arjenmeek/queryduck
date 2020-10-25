@@ -290,7 +290,7 @@ class FetchEntity(QueryElement):
         return cls(operand)
 
     def serialize(self, callback):
-        callback(self.operand)
+        return callback(self.operand)
 
     def get_operands(self):
         return [self.operand]
