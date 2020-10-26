@@ -200,10 +200,20 @@ class OrderDescending(Order):
 
 class Prefer(QueryElement):
     maintype = "prefer"
-    num_args = 1
+    num_args = 2
 
-    def __init__(self, by):
+    def __init__(self, by, vtype):
         self.by = by
+        self.vtype = vtype
+
+    @classmethod
+    def deserialize(cls, string, callback):
+        target_string, vtype = string.split(",")
+        target = callback(target_string)
+        return cls(target, vtype)
+
+    def serialize(self, callback):
+        return f"{callback(self.by)},{self.vtype}"
 
     def get_operands(self):
         return [self.by]
@@ -227,6 +237,15 @@ class HavingComparison(Having):
     def __init__(self, lhs, rhs):
         self.lhs = lhs
         self.rhs = rhs
+
+    @classmethod
+    def deserialize(cls, string, callback):
+        lhs_string, rhs_string = string.split(",")
+        lhs, rhs = callback(lhs_string), callback(rhs_string)
+        return cls(lhs, rhs)
+
+    def serialize(self, callback):
+        return f"{callback(self.lhs)},{callback(self.rhs)}"
 
     def get_operands(self):
         return [self.lhs, self.rhs]
@@ -343,6 +362,7 @@ def request_params_to_query(params, target_name, deserializer):
     target = Blob if target_name == "blob" else Statement
     q = QDQuery(target)
     q.join(Main())
+
     def callback(string):
         if string.startswith("alias:"):
             return q.joins[string[6:]]
