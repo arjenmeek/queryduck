@@ -42,6 +42,12 @@ class QueryEntity(QueryElement):
     def subject_for(self, *predicates):
         return SubjectFor(predicates, self)
 
+    def object_meta(self, *predicates):
+        return ObjectMeta(predicates, self)
+
+    def subject_meta(self, *predicates):
+        return SubjectMeta(predicates, self)
+
     def fetch(self):
         return FetchEntity(self)
 
@@ -95,6 +101,18 @@ class SubjectFor(JoinEntity):
     keyword = "subjectfor"
     value_component = Component.SUBJECT
     meta = False
+
+
+class ObjectMeta(JoinEntity):
+    keyword = "objectmeta"
+    value_component = Component.OBJECT
+    meta = True
+
+
+class SubjectMeta(JoinEntity):
+    keyword = "subjectmeta"
+    value_component = Component.SUBJECT
+    meta = True
 
 
 class Filter(QueryElement):
@@ -319,6 +337,8 @@ class FetchEntity(QueryElement):
 element_classes = {
     ("join", "objectfor"): ObjectFor,
     ("join", "subjectfor"): SubjectFor,
+    ("join", "objectmeta"): ObjectMeta,
+    ("join", "subjectmeta"): SubjectMeta,
     ("filter", "eq"): Equals,
     ("filter", "ne"): NotEquals,
     ("filter", "lt"): Less,
