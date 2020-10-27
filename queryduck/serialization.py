@@ -47,7 +47,6 @@ def parse_identifier(repo, bindings, identifier):
     elif identifier.startswith("/"):
         dummy, *resources, label = identifier.split("/")
         result, coll = repo.query({MatchObject(bindings.label): label})
-        print(result.values)
         v = label
     else:
         v = identifier

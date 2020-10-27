@@ -50,7 +50,6 @@ class DocProcessor:
         i = 0
         while stack:
             v, parent, key, depth = stack.pop()
-            # print("POPPED", v, parent, key)
             object_statements = [s for s in self.coll.find(s=v) if s != s.triple[2]]
             if (
                 not (b.reverse_exists(v) and depth >= 1)
