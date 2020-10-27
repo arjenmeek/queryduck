@@ -57,7 +57,7 @@ class VolumeProcessor:
         elif (
             remote is None
             or local.stat().st_size != remote["size"]
-            or dt.fromtimestamp(local.stat().st_mtime)
+            or dt.utcfromtimestamp(local.stat().st_mtime)
             != dt.fromisoformat(remote["mtime"])
         ):
             relpath = str(local.relative_to(self.root))
@@ -79,7 +79,7 @@ class VolumeProcessor:
     def _process_file(self, path):
         try:
             file_info = {
-                "mtime": dt.fromtimestamp(path.stat().st_mtime).isoformat(),
+                "mtime": dt.utcfromtimestamp(path.stat().st_mtime).isoformat(),
                 "size": path.stat().st_size,
                 "lastverify": dt.now().isoformat(),
                 "handle": urlsafe_b64encode(self._get_file_handle(path)).decode(
