@@ -8,7 +8,7 @@ DEFAULT_SCHEMA_FILES = [
 
 
 class Component(enum.Enum):
-    SELF = enum.auto
-    SUBJECT = enum.auto
-    PREDICATE = enum.auto
-    OBJECT = enum.auto
+    SELF = enum.auto()
+    SUBJECT = enum.auto()
+    PREDICATE = enum.auto()
+    OBJECT = enum.auto()
