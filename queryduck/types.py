@@ -142,6 +142,7 @@ value_types = {
     "file": {
         "type": File,
         "factory": File,
+        "column_name": "object_blob_id",
         "serializer": lambda f: f.serialize(),
     },
 }

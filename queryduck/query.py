@@ -36,6 +36,9 @@ class QueryEntity(QueryElement):
     def __ge__(self, other):
         return GreaterEqual(self, other)
 
+    def matchfile(self, other):
+        return MatchFile(self, other)
+
     def object_for(self, *predicates):
         return ObjectFor(predicates, self)
 
@@ -174,6 +177,10 @@ class Greater(Comparison):
 
 class GreaterEqual(Comparison):
     keyword = "ge"
+
+
+class MatchFile(Comparison):
+    keyword = "matchfile"
 
 
 class IsNull(UnaryFilter):
@@ -345,6 +352,7 @@ element_classes = {
     ("filter", "le"): LessEqual,
     ("filter", "gt"): Greater,
     ("filter", "ge"): GreaterEqual,
+    ("filter", "matchfile"): MatchFile,
     ("filter", "isnull"): IsNull,
     ("filter", "notnull"): NotNull,
     ("order", "asc"): OrderAscending,

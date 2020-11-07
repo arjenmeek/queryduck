@@ -129,9 +129,7 @@ class StatementRepository:
     def raw_create(self, ser_statements):
         return self.connection.create_statements(ser_statements)
 
-    def submit(self, transaction):
-        if len(transaction.statements) == 0:
-            return Collection()
+    def serialize_transaction(self, transaction):
         ser_statements = []
         for s in transaction.statements:
             ser_statements.append(
@@ -141,6 +139,12 @@ class StatementRepository:
                     for v in s.triple
                 ]
             )
+        return ser_statements
+
+    def submit(self, transaction):
+        if len(transaction.statements) == 0:
+            return Collection()
+        ser_statements = self.serialize_transaction(transaction)
         ser_result = self.connection.submit_transaction(ser_statements)
         statements = self._statement_result_from_response(ser_result["statements"])
         coll = Collection(statements=statements)
