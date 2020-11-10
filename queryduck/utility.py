@@ -46,16 +46,22 @@ class DocProcessor:
     def value_to_doc(self, value):
         b = self.bindings
         main_parent = {"main": {}}
-        stack = [(value, main_parent, "main", 0)]
+        stack = [(value, main_parent, "main", 0, (value,))]
         i = 0
         while stack:
-            v, parent, key, depth = stack.pop()
-            object_statements = [s for s in self.coll.find(s=v) if s != s.triple[2]]
-            if (
-                not (b.reverse_exists(v) and depth >= 1)
-                and type(v).__name__ == "Statement"
-                and len(object_statements)
-            ):
+            v, parent, key, depth, parents = stack.pop()
+            #print("PARENTSET", parentset)
+            if depth > 10:
+                continue
+            if (b.reverse_exists(v) and depth >= 1) or not hasattr(v, "handle"):
+                val = b.reverse(v) if b.reverse_exists(v) else serialize(v)
+                if key in parent:
+                    if type(parent[key]) != list:
+                        parent[key] = [parent[key]]
+                    parent[key].append(val)
+                else:
+                    parent[key] = val
+            else:
                 sub = {}
                 if b.reverse_exists(v):
                     sub["="] = "{} ({})".format(b.reverse(v), serialize(v))
@@ -69,20 +75,30 @@ class DocProcessor:
                         break
                 else:
                     label = None
-                    break
+                    #break
 
                 types = self.coll.objects_for(v, b.type)
+                rlabel = False
                 if b.Resource in types:
                     otypes = [t for t in types if t != b.Resource]
                     btypes = [b.reverse(t) for t in otypes if b.reverse_exists(t)]
                     if label and len(btypes):
                         sub["/"] = "/".join([""] + btypes + [label])
+                        rlabel = True
 
+                object_statements = [s for s in self.coll.find(s=v) if s != s.triple[2]]
+                subject_statements = [s for s in self.coll.find(o=v) if s != s.triple[0]]
                 for s in object_statements:
-                    if s.triple[2] == s:
+                    if s.triple[2] in parents or (rlabel and s.triple[1] in (b.type, b.label)):
                         continue
                     subkey = "{}".format(b.reverse(s.triple[1]))
-                    stack.append((s.triple[2], sub, subkey, depth + 1))
+                    stack.append((s.triple[2], sub, subkey, depth + 1, parents + (s.triple[2],)))
+
+                for s in subject_statements:
+                    if s.triple[0] in parents:
+                        continue
+                    subkey = "~{}".format(b.reverse(s.triple[1]))
+                    stack.append((s.triple[0], sub, subkey, depth + 1, parents + (s.triple[0],)))
 
                 if key in parent and depth >= 1:
                     if type(parent[key]) != list:
@@ -90,14 +106,6 @@ class DocProcessor:
                     parent[key].append(sub)
                 else:
                     parent[key] = sub
-            else:
-                val = b.reverse(v) if b.reverse_exists(v) else serialize(v)
-                if key in parent:
-                    if type(parent[key]) != list:
-                        parent[key] = [parent[key]]
-                    parent[key].append(val)
-                else:
-                    parent[key] = val
         return main_parent["main"]
 
 
