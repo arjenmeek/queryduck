@@ -62,9 +62,10 @@ class Main(QueryEntity):
     keyword = "main"
     value_component = Component.SELF
 
-    def __init__(self):
+    def __init__(self, value_type):
         self.key = "main"
         self.target = None
+        self.value_type = value_type
 
     def __repr__(self):
         return f"<{self.__class__.__name__}>"
@@ -77,6 +78,7 @@ class JoinEntity(QueryEntity):
         self.predicates = predicates
         self.target = target
         self.key = key
+        self.value_type = Statement
 
     def __repr__(self):
         return f"<{self.__class__.__name__} predicates={self.predicates} target={self.target} key={self.key}>"
@@ -389,7 +391,7 @@ def query_to_request_params(query, serializer):
 def request_params_to_query(params, target_name, deserializer):
     target = Blob if target_name == "blob" else Statement
     q = QDQuery(target)
-    q.join(Main())
+    q.join(Main(target))
 
     def callback(string):
         if string.startswith("alias:"):
