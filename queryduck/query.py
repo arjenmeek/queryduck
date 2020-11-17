@@ -343,6 +343,25 @@ class FetchEntity(QueryElement):
         return [self.operand]
 
 
+class AfterTuple(QueryElement):
+    maintype = "after"
+    keyword = "tuple"
+
+    def __init__(self, values):
+        self.values = values
+
+    @classmethod
+    def deserialize(cls, string, callback):
+        value_strs = string.split(",")
+        values = [callback(v) for v in value_strs]
+        return cls(values)
+
+    def serialize(self, callback):
+        parts = [callback(v) for v in self.values]
+        return ",".join(parts)
+
+
+
 element_classes = {
     ("join", "objectfor"): ObjectFor,
     ("join", "subjectfor"): SubjectFor,
@@ -370,6 +389,7 @@ element_classes = {
     ("having", "isnull"): HavingIsNull,
     ("having", "notnull"): HavingNotNull,
     ("fetch", "entity"): FetchEntity,
+    ("after", "tuple"): AfterTuple,
 }
 
 
@@ -400,6 +420,8 @@ def request_params_to_query(params, target_name, deserializer):
             return deserializer(string)
 
     for k, v in params:
+        if k == "after":
+            continue
         cls = element_classes[tuple(k.split("."))]
         element = cls.deserialize(v, callback)
         q.add(element)
