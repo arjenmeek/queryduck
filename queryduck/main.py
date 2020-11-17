@@ -4,6 +4,7 @@ import os
 from os.path import dirname, expanduser, join as pjoin
 
 from .connection import Connection
+from .context import Context
 from .constants import DEFAULT_SCHEMA_FILES
 from .repository import StatementRepository
 
@@ -40,3 +41,12 @@ class QueryDuck:
             self.bindings = repo.bindings_from_schemas(schemas)
 
         return self.bindings
+
+    def get_context(self, coll=None, transaction=None):
+        context = Context(
+            bindings=self.get_bindings(),
+            repo=self.get_repo(),
+            coll=coll,
+            transaction=transaction,
+        )
+        return context
