@@ -136,7 +136,7 @@ class Comparison(Filter):
 
     @classmethod
     def deserialize(cls, string, callback):
-        lhs_string, rhs_string = string.split(",")
+        lhs_string, rhs_string = string.split(",", 1)
         lhs, rhs = callback(lhs_string), callback(rhs_string)
         return cls(lhs, rhs)
 
