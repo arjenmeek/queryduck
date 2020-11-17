@@ -153,6 +153,14 @@ class UnaryFilter(Filter):
     def __init__(self, operand):
         self.operand = operand
 
+    @classmethod
+    def deserialize(cls, string, callback):
+        operand = callback(string)
+        return cls(operand)
+
+    def serialize(self, callback):
+        return f"{callback(self.operand)}"
+
     def get_operands(self):
         return [self.operand]
 
@@ -434,6 +442,7 @@ class QDQuery:
         self.target = target
         self.elements = []
         self.joins = {}
+        self.reserved_join_keys = set()
         self.filters = []
         self.orders = []
         self.prefers = []
@@ -454,7 +463,8 @@ class QDQuery:
     def _get_join_key(self, prefix="join"):
         for i in range(1, 1000):
             try_key = f"{prefix}{i}"
-            if not try_key in self.joins:
+            if not try_key in self.joins and not try_key in self.reserved_join_keys:
+                self.reserved_join_keys.add(try_key)
                 return try_key
         raise UserError("Too many joins")
 
@@ -471,6 +481,8 @@ class QDQuery:
             current = current.target
         for e in reversed(stack):
             self.joins[e.key] = e
+            if not type(e) == Main:
+                self.elements.append(e)
         return self
 
     def _prepare_element(self, element):
@@ -481,10 +493,11 @@ class QDQuery:
 
     def add(self, *elements):
         for element in elements:
+            [self._prepare_element(o) for o in element.get_operands()]
             if isinstance(element, QueryEntity):
                 self.join(element)
-            [self._prepare_element(o) for o in element.get_operands()]
-            self.elements.append(element)
+            else:
+                self.elements.append(element)
         return self
 
     def get_elements(self, cls):
