@@ -71,8 +71,11 @@ class Connection(APIWrapper):
         results = self.get("statements/{}".format(reference))
         return results
 
-    def get_statements(self):
-        results = self.get("statements")
+    def get_statements(self, after=None):
+        params = {}
+        if after:
+            params["after"] = after
+        results = self.get("statements", params)
         return results
 
     def get_query(self, params, target="statement"):

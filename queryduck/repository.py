@@ -14,8 +14,8 @@ class StatementRepository:
         self.statement_map = weakref.WeakValueDictionary()
         self.blob_map = weakref.WeakValueDictionary()
 
-    def export_statements(self):
-        r = self.connection.get_statements()
+    def export_statements(self, after=None):
+        r = self.connection.get_statements(after=after)
         return r["statements"]
 
     def import_statements(self, ser_statements):
