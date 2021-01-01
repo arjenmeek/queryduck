@@ -173,6 +173,33 @@ class NotEquals(Comparison):
     keyword = "ne"
 
 
+class InList(Filter):
+    keyword = "in"
+    num_args = 2
+
+    def __init__(self, lhs, rhs):
+        self.lhs = lhs
+        self.rhs = rhs
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} lhs={self.lhs} rhs={self.rhs}>"
+
+    @classmethod
+    def deserialize(cls, string, callback):
+        lhs_string, *rhs_strings = string.split(",")
+        lhs = callback(lhs_string)
+        rhs = [callback(s) for s in rhs_strings]
+        return cls(lhs, rhs)
+
+    def serialize(self, callback):
+        rhs_strings = [callback(e) for e in self.rhs]
+        return ','.join([callback(self.lhs)] + rhs_strings)
+        return f"{callback(self.lhs)},{callback(self.rhs)}"
+
+    def get_operands(self):
+        return [self.lhs] + self.rhs
+
+
 class Less(Comparison):
     keyword = "lt"
 
@@ -377,6 +404,7 @@ element_classes = {
     ("join", "subjectmeta"): SubjectMeta,
     ("filter", "eq"): Equals,
     ("filter", "ne"): NotEquals,
+    ("filter", "in"): InList,
     ("filter", "lt"): Less,
     ("filter", "le"): LessEqual,
     ("filter", "gt"): Greater,
