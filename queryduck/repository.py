@@ -141,11 +141,23 @@ class StatementRepository:
             )
         return ser_statements
 
+    def _process_transaction_result(self, references, statements):
+        for reference, statement in zip(references, statements):
+            temp = deserialize(reference)
+            statement.handle = temp.handle
+            statement.id = None
+            # TODO: This sets the map entry unconditionally. The handle *should* be new,
+            # but it's better to not assume this, and add some kind of sanity check.
+            self.statement_map[statement.handle] = statement
+        return statements
+
+
     def submit(self, transaction):
         if len(transaction.statements) == 0:
             return Collection()
         ser_statements = self.serialize_transaction(transaction)
         ser_result = self.connection.submit_transaction(ser_statements)
+        results = self._process_transaction_result(ser_result["references"], transaction.statements)
         statements = self._statement_result_from_response(ser_result["statements"])
         coll = Collection(statements=statements)
         return coll
