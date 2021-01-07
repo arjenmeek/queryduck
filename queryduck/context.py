@@ -1,4 +1,6 @@
+from .query import Main, QDQuery
 from .transaction import Transaction
+from .types import Statement
 
 class Context:
     def __init__(self, repo, bindings, coll=None, transaction=None):
@@ -19,3 +21,20 @@ class Context:
         if current:
             return None
         return self.transaction.ensure(s, p, o)
+
+    def parse_identifier(self, identifier):
+        if ":" in identifier:
+            v = self.repo.unique_deserialize(identifier)
+        elif identifier in self.bindings:
+            v = self.bindings[identifier]
+        elif identifier.startswith("/"):
+            dummy, *resources, label = identifier.split("/")
+            m = Main(Statement)
+            q = QDQuery(Statement).add(
+                m.object_for(self.bindings.label)==label,
+                m.object_for(self.bindings.type)==self.bindings[resources[0]],
+            )
+            result, coll = self.repo.execute(q)
+            v = label
+        else:
+            v = identifier
