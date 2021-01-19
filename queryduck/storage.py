@@ -13,6 +13,20 @@ from .utility import (
     safe_string,
 )
 
+class StorageHelper():
+
+    def __init__(self, context, config):
+        self.context = context
+        self.config = config
+
+    def path_from_file(self, file_):
+        for volume_reference, volume_options in self.config["volumes"].items():
+            if volume_reference == file_.volume:
+                p = Path(volume_options["path"])
+                return p / Path(os.fsdecode(file_.path))
+        return None
+
+
 
 class VolumeFileAnalyzer:
     def __init__(self, volume_config):
