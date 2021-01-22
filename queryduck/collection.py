@@ -1,8 +1,5 @@
 from collections import defaultdict
 
-from .types import Statement, Blob
-from .serialization import deserialize
-
 
 class Collection:
     def __init__(self, statements=None, files=None):
@@ -100,9 +97,3 @@ class Collection:
     def subject_for(self, object_, predicate):
         st = self.first(p=predicate, o=object_)
         return None if st is None else st.triple[0]
-
-
-class Result:
-    def __init__(self, values, more):
-        self.values = values
-        self.more = more

@@ -3,7 +3,7 @@ import weakref
 from .schema import Bindings, SchemaProcessor
 from .types import CompoundValue, Statement, Blob
 from .query import QDQuery, QueryEntity, query_to_request_params
-from .result import Collection, Result
+from .collection import Collection
 from .serialization import serialize, deserialize
 from .utility import transform_doc
 
@@ -104,21 +104,17 @@ class StatementRepository:
 
     def _result_from_response(self, response):
         statements = self._statement_result_from_response(response["statements"])
-
-        values = []
-        for ref in response["references"]:
-            value = self.unique_deserialize(ref)
-            values.append(value)
+        results = [self.unique_deserialize(r) for r in response["references"]]
 
         files = {}
         if "files" in response:
             for k, v in response["files"].items():
                 blob = self.unique_deserialize(k)
                 files[blob] = [self.unique_deserialize(f) for f in v]
-        result = Result(values=values, more=response["more"])
+
         coll = Collection(statements=statements, files=files)
         coll.index()
-        return result, coll
+        return results, coll
 
     def create(self, rows):
         ser_statements = []
