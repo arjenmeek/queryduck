@@ -36,6 +36,9 @@ class QueryEntity(QueryElement):
     def __ge__(self, other):
         return GreaterEqual(self, other)
 
+    def in_list(self, other):
+        return InList(self, other)
+
     def matchfile(self, other):
         return MatchFile(self, other)
 
@@ -534,3 +537,4 @@ class QDQuery:
 
     def limit(self, limit):
         self.limit = limit
+        return self
