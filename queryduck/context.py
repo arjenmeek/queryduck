@@ -16,11 +16,17 @@ class Context:
         result, self.coll = self.repo.execute(query)
         return result
 
+    def add(self, s, p, o):
+        return self.transaction.add(s, p, o)
+
     def ensure(self, s, p, o):
         current = self.coll.first(s, p, o)
         if current:
             return None
         return self.transaction.ensure(s, p, o)
+
+    def submit(self):
+        self.repo.submit(self.transaction)
 
     def parse_identifier(self, identifier):
         if ":" in identifier:
@@ -38,3 +44,9 @@ class Context:
             v = label
         else:
             v = identifier
+
+    def deserialize(self, string):
+        if string.startswith("@") and string[1:] in self.bindings:
+            return self.bindings[string[1:]]
+        else:
+            return self.repo.unique_deserialize(string)
