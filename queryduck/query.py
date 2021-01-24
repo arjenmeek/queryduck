@@ -499,14 +499,17 @@ class QDQuery:
                 return try_key
         raise UserError("Too many joins")
 
-    def join(self, entity):
+    def join(self, entity, join_key=None):
         if isinstance(entity, JoinEntity):
             [self.seen_values.add(p) for p in entity.predicates]
         current = entity
         stack = []
         while current:
             if not current.key:
-                current.key = self._get_join_key()
+                if join_key is not None and current == entity:
+                    current.key = join_key
+                else:
+                    current.key = self._get_join_key()
             if not current.key in self.joins:
                 stack.append(current)
             current = current.target
