@@ -534,6 +534,21 @@ class QDQuery:
                 self.elements.append(element)
         return self
 
+    def add_from_strings(self, context, *element_strings):
+
+        def callback(string):
+            if string.startswith("alias:"):
+                return self.joins[string[6:]]
+            else:
+                return context.deserialize(string)
+
+        for el_st in element_strings:
+            k, v = el_st.split("=", 1)
+            cls = element_classes[tuple(k.split("."))]
+            element = cls.deserialize(v, callback)
+            self.add(element)
+
+
     def get_elements(self, cls):
         elements = [e for e in self.elements if isinstance(e, cls)]
         return elements
