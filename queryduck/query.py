@@ -12,6 +12,30 @@ class QueryElement:
         return []
 
 
+class HavingPlaceholder:
+
+    def __init__(self, entity):
+        self.entity = entity
+
+    def __eq__(self, other):
+        return HavingEquals(self.entity, other)
+
+    def __ne__(self, other):
+        return HavingNotEquals(self.entity, other)
+
+    def __lt__(self, other):
+        return HavingLess(self.entity, other)
+
+    def __le__(self, other):
+        return HavingLessEqual(self.entity, other)
+
+    def __gt__(self, other):
+        return HavingGreater(self.entity, other)
+
+    def __ge__(self, other):
+        return HavingGreaterEqual(self.entity, other)
+
+
 class QueryEntity(QueryElement):
     maintype = "join"
 
@@ -36,6 +60,9 @@ class QueryEntity(QueryElement):
     def __ge__(self, other):
         return GreaterEqual(self, other)
 
+    def having(self):
+        return HavingPlaceholder(self)
+
     def in_list(self, other):
         return InList(self, other)
 
@@ -59,6 +86,15 @@ class QueryEntity(QueryElement):
 
     def order_asc(self, vtype):
         return OrderAscending(self, vtype)
+
+    def order_desc(self, vtype):
+        return OrderDescending(self, vtype)
+
+    def prefer_min(self, vtype):
+        return PreferMin(self, vtype)
+
+    def prefer_max(self, vtype):
+        return PreferMax(self, vtype)
 
 
 class Main(QueryEntity):
