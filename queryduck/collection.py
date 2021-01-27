@@ -1,7 +1,23 @@
 from collections import defaultdict
 
+class BaseCollection:
 
-class Collection:
+    def objects_for(self, subject, predicate):
+        return [s.triple[2] for s in self.find(s=subject, p=predicate)]
+
+    def object_for(self, subject, predicate):
+        st = self.first(s=subject, p=predicate)
+        return None if st is None else st.triple[2]
+
+    def subjects_for(self, object_, predicate):
+        return [s.triple[0] for s in self.find(p=predicate, o=object_)]
+
+    def subject_for(self, object_, predicate):
+        st = self.first(p=predicate, o=object_)
+        return None if st is None else st.triple[0]
+
+
+class Collection(BaseCollection):
     def __init__(self, statements=None, files=None):
         self.statements = {}
         self.files = {}
@@ -84,16 +100,35 @@ class Collection:
                 return st
         return None
 
-    def objects_for(self, subject, predicate):
-        return [s.triple[2] for s in self.find(s=subject, p=predicate)]
+    def get_files(self, blob):
+        return self.files.get(blob, [])
 
-    def object_for(self, subject, predicate):
-        st = self.first(s=subject, p=predicate)
-        return None if st is None else st.triple[2]
 
-    def subjects_for(self, object_, predicate):
-        return [s.triple[0] for s in self.find(p=predicate, o=object_)]
+class GroupedCollection(BaseCollection):
+    def __init__(self, collections=None):
+        if collections:
+            self.collections = collections
+        else:
+            self.collections = []
 
-    def subject_for(self, object_, predicate):
-        st = self.first(p=predicate, o=object_)
-        return None if st is None else st.triple[0]
+    def add_collection(self, collection):
+        self.collections.append(collection)
+
+    def find(self, s=None, p=None, o=None):
+        statements = []
+        for c in self.collections:
+            statements += c.find(s, p, o)
+        return statements
+
+    def first(self, s=None, p=None, o=None):
+        for c in self.collections:
+            st = c.first(s, p, o)
+            if st:
+                return st
+        return None
+
+    def get_files(self, blob):
+        files = []
+        for c in self.collections:
+            files += c.get_files(blob)
+        return files

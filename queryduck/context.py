@@ -1,3 +1,4 @@
+from .collection import GroupedCollection
 from .query import Main, QDQuery
 from .transaction import Transaction
 from .types import Statement
@@ -6,14 +7,17 @@ class Context:
     def __init__(self, repo, bindings, coll=None, transaction=None):
         self.repo = repo
         self.bindings = bindings
-        self.coll = coll
+        self.coll = GroupedCollection()
+        if coll:
+            self.coll.add_collection(coll)
         self.transaction = transaction if transaction else Transaction()
 
     def get_bc(self):
         return self.bindings, self.coll
 
     def execute(self, query):
-        result, self.coll = self.repo.execute(query)
+        result, collection = self.repo.execute(query)
+        self.coll.add_collection(collection)
         return result
 
     def add(self, s, p, o):
