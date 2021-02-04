@@ -59,7 +59,4 @@ class Context(BaseCollection):
         return grouped_statement_generator(self.coll.collections + [self.transaction], s, p, o)
 
     def get_files(self, blob):
-        files = []
-        for c in self.collections:
-            files += c.get_files(blob)
-        return files
+        return self.coll.get_files(blob)
