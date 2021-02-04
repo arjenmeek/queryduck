@@ -1,7 +1,8 @@
+from .collection import statement_generator, BaseCollection
 from .types import Statement
 
 
-class Transaction:
+class Transaction(BaseCollection):
     def __init__(self):
         self.statements = []
 
@@ -16,24 +17,14 @@ class Transaction:
         return st
 
     def ensure(self, s, p, o):
-        current = self.find(s, p, o)
-        if len(current) == 0:
+        current = self.first(s, p, o)
+        if current is None:
             return self.add(s, p, o)
         else:
-            return current[0]
+            return current
 
     def find(self, s=None, p=None, o=None):
-        statements = []
-        for st in self.statements:
-            if (
-                st.triple is not None
-                and (s is None or st.triple[0] == s)
-                and (p is None or st.triple[1] == p)
-                and (o is None or st.triple[2] == o)
-            ):
-                statements.append(st)
-
-        return statements
+        return statement_generator(self.statements, s, p, o)
 
     def get_statement_attribute(self, statement, predicate):
         return [s.triple[2] for s in self.find(s=statement, p=predicate)]

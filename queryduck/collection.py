@@ -1,6 +1,26 @@
 from collections import defaultdict
 
+def statement_generator(statements, s, p, o):
+    for st in statements:
+        if (
+            st.triple is not None
+            and (s is None or st.triple[0] == s)
+            and (p is None or st.triple[1] == p)
+            and (o is None or st.triple[2] == o)
+        ):
+            yield st
+
+def grouped_statement_generator(collections, s, p, o):
+    for coll in collections:
+        for st in coll.find(s, p, o):
+            yield st
+
+
 class BaseCollection:
+
+    def first(self, s=None, p=None, o=None):
+        statements = self.find(s, p, o)
+        return next(statements, None)
 
     def objects_for(self, subject, predicate):
         return [s.triple[2] for s in self.find(s=subject, p=predicate)]
@@ -49,22 +69,10 @@ class Collection(BaseCollection):
                 (st.triple[0], st.triple[1], st.triple[2]),
                 (None, st.triple[1], st.triple[2]),
                 (st.triple[0], None, st.triple[2]),
-                (
-                    st.triple[0],
-                    st.triple[1],
-                    None,
-                ),
+                (st.triple[0], st.triple[1],  None),
                 (None, None, st.triple[2]),
-                (
-                    None,
-                    st.triple[1],
-                    None,
-                ),
-                (
-                    st.triple[0],
-                    None,
-                    None,
-                ),
+                (None, st.triple[1], None),
+                (st.triple[0], None, None),
             ]:
                 self.indexed[triple].append(st)
 
@@ -74,31 +82,9 @@ class Collection(BaseCollection):
     def find(self, s=None, p=None, o=None):
         if self.indexed:
             return self.indexed[(s, p, o)]
-        statements = []
-        for st in self.statements.values():
-            if (
-                st.triple is not None
-                and (s is None or st.triple[0] == s)
-                and (p is None or st.triple[1] == p)
-                and (o is None or st.triple[2] == o)
-            ):
-                statements.append(st)
-        return statements
-
-    def first(self, s=None, p=None, o=None):
-        if self.indexed:
-            k = (s, p, o)
-            return self.indexed[k][0] if k in self.indexed else None
-        statements = []
-        for st in self.statements.values():
-            if (
-                st.triple is not None
-                and (s is None or st.triple[0] == s)
-                and (p is None or st.triple[1] == p)
-                and (o is None or st.triple[2] == o)
-            ):
-                return st
-        return None
+        else:
+            st_gen = statement_generator(self.statements.values(), s, p, o)
+            return st_gen
 
     def get_files(self, blob):
         return self.files.get(blob, [])
@@ -106,26 +92,13 @@ class Collection(BaseCollection):
 
 class GroupedCollection(BaseCollection):
     def __init__(self, collections=None):
-        if collections:
-            self.collections = collections
-        else:
-            self.collections = []
+        self.collections = collections if collections is not None else []
 
     def add_collection(self, collection):
         self.collections.append(collection)
 
     def find(self, s=None, p=None, o=None):
-        statements = []
-        for c in self.collections:
-            statements += c.find(s, p, o)
-        return statements
-
-    def first(self, s=None, p=None, o=None):
-        for c in self.collections:
-            st = c.first(s, p, o)
-            if st:
-                return st
-        return None
+        return grouped_statement_generator(self.collections, s, p, o)
 
     def get_files(self, blob):
         files = []

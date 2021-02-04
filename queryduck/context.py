@@ -1,9 +1,9 @@
-from .collection import GroupedCollection
+from .collection import grouped_statement_generator, BaseCollection, GroupedCollection
 from .query import Main, QDQuery
 from .transaction import Transaction
 from .types import Statement
 
-class Context:
+class Context(BaseCollection):
     def __init__(self, repo, bindings, coll=None, transaction=None):
         self.repo = repo
         self.bindings = bindings
@@ -54,3 +54,12 @@ class Context:
             return self.bindings[string[1:]]
         else:
             return self.repo.unique_deserialize(string)
+
+    def find(self, s=None, p=None, o=None):
+        return grouped_statement_generator(self.coll.collections + [self.transaction], s, p, o)
+
+    def get_files(self, blob):
+        files = []
+        for c in self.collections:
+            files += c.get_files(blob)
+        return files
