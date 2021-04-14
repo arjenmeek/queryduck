@@ -15,8 +15,8 @@ class Context(BaseCollection):
     def get_bc(self):
         return self.bindings, self.coll
 
-    def execute(self, query):
-        result, collection = self.repo.execute(query)
+    def execute(self, query, post_query=False):
+        result, collection = self.repo.execute(query, post_query=post_query)
         self.coll.add_collection(collection)
         return result
 

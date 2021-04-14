@@ -78,6 +78,10 @@ class Connection(APIWrapper):
         results = self.get("statements", params)
         return results
 
+    def post_query(self, params, target="statement"):
+        results = self.post(f"{target}/query", params)
+        return results
+
     def get_query(self, params, target="statement"):
         results = self.get(f"{target}/query", params)
         return results
