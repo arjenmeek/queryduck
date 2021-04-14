@@ -76,6 +76,10 @@ class File:
         return '<File volume="{}" path="{}">'.format(self.volume, self.path.decode())
 
     def serialize(self):
+        # FIXME for now, the base64 encoded version is always sent, even if it's not really necessary
+        return "b64:{}:{}".format(
+            self.volume, base64.urlsafe_b64encode(self.path).decode()
+        )
         try:
             return ":{}:{}".format(self.volume, self.path.decode())
         except UnicodeDecodeError:
